@@ -5,5 +5,4 @@
 .vscode/ipch
 .vscode/extensions.json
 lib/*
-!lib/*.sh
 !lib/*.md

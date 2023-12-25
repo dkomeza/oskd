@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# Move to the root directory
+cd ..
+
+# Create lib folder if it doesn't exist
+mkdir -p lib
+cd lib
+
 # Install dependencies
 echo "Installing dependencies..."
 git clone https://github.com/Bodmer/TFT_eSPI.git
