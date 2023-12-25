@@ -15,4 +15,4 @@ This project started in 2021 when I bought my first e-bike. The bike came with a
 [issues-shield]: https://img.shields.io/github/issues/dkomeza/oskd.svg?style=for-the-badge
 [issues-url]: https://github.com/dkomeza/oskd/issues
 [license-shield]: https://img.shields.io/github/license/dkomeza/oskd.svg?style=for-the-badge
-[license-url]: https://github.com/dkomeza/oskd/blob/master/LICENSE.txt
+[license-url]: https://github.com/dkomeza/oskd/blob/main/LICENSE.txt
