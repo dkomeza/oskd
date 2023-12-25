@@ -1,8 +1,12 @@
 #include <Arduino.h>
 #include <TFT_eSPI.h>
 
+#include "connection/OTA.h"
+
 void setup()
 {
+    connection::setupOTA();
+
     TFT_eSPI tft = TFT_eSPI();
     tft.init();
     tft.setRotation(4);
@@ -12,4 +16,7 @@ void setup()
     digitalWrite(26, HIGH);
 }
 
-void loop() {}
+void loop()
+{
+    connection::loop();
+}
