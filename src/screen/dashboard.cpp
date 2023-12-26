@@ -43,12 +43,19 @@ void drawBattery()
 
 void updateBattery()
 {
-    int batteryWidth = 50;
-    int batteryHeight = 14;
+    int batteryWidth = 56;
+    int batteryHeight = 20;
+
     int batteryX = 240 - batteryWidth - 12;
     int batteryY = 8;
 
-    int batteryPercent = (data::voltage - BATTERY_MIN_VOLTAGE) / (BATTERY_MAX_VOLTAGE - BATTERY_MIN_VOLTAGE) * 100;
+    batteryWidth -= 4;
+    batteryWidth -= 2;
+
+    batteryHeight -= 4;
+    batteryHeight -= 2;
+
+    int batteryPercent = (double)(data::voltage - BATTERY_MIN_VOLTAGE) / (double)(BATTERY_MAX_VOLTAGE - BATTERY_MIN_VOLTAGE) * 100.0;
 
     if (batteryPercent < 0)
         batteryPercent = 0;
@@ -57,5 +64,5 @@ void updateBattery()
 
     batteryWidth = batteryWidth * batteryPercent / 100;
 
-    tft.fillSmoothRoundRect(batteryX + 3, batteryY + 3, batteryWidth, batteryHeight, 2, TFT_WHITE);
+    tft.fillSmoothRoundRect(batteryX + 3, batteryY + 3, batteryWidth, batteryHeight, 2, TFT_GREEN);
 }

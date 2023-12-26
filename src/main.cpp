@@ -6,6 +6,8 @@
 
 void setup()
 {
+    Serial.begin(115200);
+
     connection::setupOTA();
     screen::setup();
 }
