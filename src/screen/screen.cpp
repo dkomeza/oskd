@@ -18,12 +18,14 @@ void screen::setup()
     pinMode(BACKLIGHT_PIN, OUTPUT);
     digitalWrite(BACKLIGHT_PIN, HIGH);
 
+    ofr.setDrawer(tft);
+
     switch (currentView)
     {
     case View::Dashboard:
         dashboard::draw();
         break;
-    
+
     default:
         break;
     }

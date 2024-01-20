@@ -23,12 +23,24 @@ void setup()
     button.setLongPressTime(600);
 
     button.onClick([]()
-                   { Serial.println("Click"); });
+                   { data::voltage--; });
+
     button.onLongPress([]()
-                       { Serial.println("Long press"); },
+                       {
+        data::speed -= 1;
+        if (data::speed < 0)
+            data::speed = 0; },
                        100);
-    button.onLongPressRelease([]()
-                              { Serial.println("Long press release"); });
+
+    button2.onClick([]()
+                    { data::voltage++; });
+
+    button2.onLongPress([]()
+                        {
+        data::speed += 1;
+        if (data::speed > 60)
+            data::speed = 60; },
+                        100);
 }
 
 void loop()
@@ -36,6 +48,7 @@ void loop()
     connection::loop();
 
     button.update();
+    button2.update();
 
     dashboard::update();
 }
