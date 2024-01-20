@@ -146,8 +146,8 @@ void drawMain()
     // Draw the speed arc
     drawSpeedArc();
 
-    // // Draw the power arc
-    // drawPowerArc();
+    // Draw the power arc
+    drawPowerArc();
 }
 
 void drawSpeedArc()
@@ -162,7 +162,7 @@ void drawSpeedArc()
     int maxSpeed = 50;
 
     int speedBars = maxSpeed == 50 ? 10 + 1 : 5 + 1;
-    int smallSpeedBars = maxSpeed == 50 ? 20 + 1 : 10 + 1;
+    int smallSpeedBars = maxSpeed == 50 ? 50 + 1 : 25 + 1;
 
     int speedBarHeight = 8;
     int smallSpeedBarHeight = 4;
@@ -225,76 +225,80 @@ void drawSpeedArc()
     tft.unloadFont();
 }
 
-// void drawPowerArc()
-// {
-//     int maxPower = 1500;
+void drawPowerArc()
+{
+    int powerArcRadius = 100;
+    int powerArcAngle = 90;
 
-//     int mainBackgroundX = 120;
-//     int mainBackgroundY = 140;
+    int powerArcStartAngle = 360 - powerArcAngle / 2;
+    int powerArcEndAngle = powerArcAngle / 2;
 
-//     // Draw the power arc
-//     int powerArcRadius = 100;
-//     int powerArcAngle = 90;
+    int maxPower = 1000; // Divisible by 500
+    int divider = maxPower == 250 ? 10 : 100;
 
-//     int powerArcStartAngle = 360 - powerArcAngle / 2;
-//     int powerArcEndAngle = powerArcAngle / 2;
+    int powerBars = 5 + 1;
+    int smallPowerBars = 20 + 1;
 
-//     tft.drawSmoothArc(mainBackgroundX, mainBackgroundY, powerArcRadius, powerArcRadius - 1, powerArcStartAngle, powerArcEndAngle, TFT_WHITE, TFT_BLACK);
+    int powerBarHeight = 6;
+    int smallPowerBarHeight = 4;
 
-//     int powerBars = 6;
-//     int powerBarHeight = 6;
-//     for (int i = 0; i < powerBars; i++)
-//     {
-//         int powerBarAngle = powerArcAngle / (powerBars - 1) * i + powerArcAngle / 2;
+    // Draw small power bars
+    for (int i = 0; i < smallPowerBars; i++)
+    {
+        int startAngle = powerArcStartAngle + (double)powerArcAngle / (smallPowerBars - 1) * i;
+        if (startAngle > 360)
+            startAngle -= 360;
 
-//         int powerBarX = mainBackgroundX + cos(powerBarAngle * PI / 180.0) * powerArcRadius;
-//         int powerBarY = mainBackgroundY + sin(powerBarAngle * PI / 180.0) * powerArcRadius;
+        if (startAngle == 0 || startAngle == 360)
+        {
+            tft.drawRect(120, 140 + powerArcRadius - smallPowerBarHeight, 2, smallPowerBarHeight, TFT_WHITE);
+            continue;
+        }
 
-//         int powerBarX2 = mainBackgroundX + cos(powerBarAngle * PI / 180.0) * (powerArcRadius - powerBarHeight);
-//         int powerBarY2 = mainBackgroundY + sin(powerBarAngle * PI / 180.0) * (powerArcRadius - powerBarHeight);
+        if (i == smallPowerBars - 1) // Last bar (so that it doesnt extend past the arc)
+            startAngle--;
 
-//         tft.drawLine(powerBarX, powerBarY, powerBarX2, powerBarY2, TFT_WHITE);
-//     }
+        int endAngle = startAngle + 1;
 
-//     int smallPowerBarHeight = 3;
-//     for (int i = 0; i < powerBars - 1; i++)
-//     {
-//         int powerBarAngle = powerArcAngle / (powerBars - 1) * i + powerArcAngle / 2 + powerArcAngle / (powerBars - 1) / 2;
+        tft.drawSmoothArc(120, 140, powerArcRadius, powerArcRadius - smallPowerBarHeight, startAngle, endAngle, TFT_WHITE, TFT_BLACK);
+    }
 
-//         int powerBarX = mainBackgroundX + cos(powerBarAngle * PI / 180.0) * powerArcRadius;
-//         int powerBarY = mainBackgroundY + sin(powerBarAngle * PI / 180.0) * powerArcRadius;
+    // Draw the power bars
+    for (int i = 0; i < powerBars; i++)
+    {
+        int startAngle = powerArcStartAngle + (double)powerArcAngle / (powerBars - 1) * i;
+        if (startAngle > 360)
+            startAngle -= 360;
 
-//         int powerBarX2 = mainBackgroundX + cos(powerBarAngle * PI / 180.0) * (powerArcRadius - smallPowerBarHeight);
-//         int powerBarY2 = mainBackgroundY + sin(powerBarAngle * PI / 180.0) * (powerArcRadius - smallPowerBarHeight);
+        if (i == powerBars - 1) // Last bar (so that it doesnt extend past the arc)
+            startAngle--;
 
-//         tft.drawLine(powerBarX, powerBarY, powerBarX2, powerBarY2, TFT_WHITE);
-//     }
+        int endAngle = startAngle + 1;
 
-//     double divider = maxPower < 1000 ? 100.0 : 100.0;
-//     tft.setTextFont(2);
-//     for (int i = 0; i < powerBars; i++)
-//     {
-//         int powerBarAngle = powerArcAngle / (powerBars - 1) * i + powerArcAngle / 2;
+        tft.drawSmoothArc(120, 140, powerArcRadius, powerArcRadius - powerBarHeight, startAngle, endAngle, TFT_WHITE, TFT_BLACK);
+    }
 
-//         int powerBarX = mainBackgroundX + cos(powerBarAngle * PI / 180.0) * (powerArcRadius - 12);
-//         int powerBarY = mainBackgroundY + sin(powerBarAngle * PI / 180.0) * (powerArcRadius - 12);
+    // Draw the power arc
+    tft.drawSmoothArc(120, 140, powerArcRadius, powerArcRadius - 1, powerArcStartAngle, powerArcEndAngle, TFT_WHITE, TFT_BLACK);
 
-//         tft.setTextColor(TFT_WHITE, TFT_BLACK, true);
-//         tft.setTextDatum(CC_DATUM);
+    // Draw the power text
+    tft.loadFont(FONT_S);
+    for (int i = 0; i < powerBars; i++)
+    {
+        int startAngle = 360 - powerArcAngle / (powerBars - 1) * i + powerArcAngle * 1.5;
 
-//         double power = (double)maxPower / (double)(powerBars - 1) * (powerBars - 1 - i) / divider;
-//         int powerInt = (int)power;
+        tft.setTextColor(TFT_WHITE, TFT_BLACK, true);
+        tft.setTextDatum(CC_DATUM);
 
-//         if (power - (double)powerInt == 0)
-//         {
-//             tft.drawString(String(powerInt), powerBarX, powerBarY, 1);
-//         }
-//         else
-//         {
-//             tft.drawString(String(power, 1), powerBarX, powerBarY, 1);
-//         }
-//     }
-// }
+        int power = (double)maxPower / (double)(powerBars - 1) * i / divider;
+
+        int powerBarX = 120 + cos(startAngle * PI / 180.0) * (powerArcRadius - 14);
+        int powerBarY = 140 + sin(startAngle * PI / 180.0) * (powerArcRadius - 14);
+
+        tft.drawString(String(power), powerBarX, powerBarY, 1);
+    }
+}
+
 // void updatePower()
 // {
 //     int powerArcRadius = 106;
