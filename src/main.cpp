@@ -6,6 +6,11 @@
 #include "data/data.h"
 #include "screen/dashboard.h"
 
+#include "io/button.h"
+
+Button button(27);
+Button button2(12);
+
 bool rising = true;
 
 void setup()
@@ -14,20 +19,23 @@ void setup()
 
     connection::setupOTA();
     screen::setup();
+
+    button.setLongPressTime(600);
+
+    button.onClick([]()
+                   { Serial.println("Click"); });
+    button.onLongPress([]()
+                       { Serial.println("Long press"); },
+                       100);
+    button.onLongPressRelease([]()
+                              { Serial.println("Long press release"); });
 }
 
 void loop()
 {
-    data::voltage = rising ? data::voltage + 1 : data::voltage - 1;
-
-    if (data::voltage == 546)
-        rising = false;
-    else if (data::voltage == 400)
-        rising = true;
-
     connection::loop();
 
-    dashboard::update();
+    button.update();
 
-    delay(50);
+    dashboard::update();
 }
