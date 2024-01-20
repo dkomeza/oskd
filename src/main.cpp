@@ -16,8 +16,9 @@ bool rising = true;
 void setup()
 {
     Serial.begin(115200);
+    Serial.println("Starting...");
 
-    connection::setupOTA();
+    // connection::setupOTA();
     screen::setup();
 
     button.setLongPressTime(600);
@@ -26,21 +27,17 @@ void setup()
                    { data::voltage--; });
 
     button.onLongPress([]()
-                       {
-        data::speed -= 1;
-        if (data::speed < 0)
-            data::speed = 0; },
-                       100);
+                       { data::voltage -= 1; },
+                       1);
 
     button2.onClick([]()
                     { data::voltage++; });
 
     button2.onLongPress([]()
-                        {
-        data::speed += 1;
-        if (data::speed > 60)
-            data::speed = 60; },
-                        100);
+                        { data::voltage += 1; },
+                        1);
+
+    Serial.println("Started!");
 }
 
 void loop()
