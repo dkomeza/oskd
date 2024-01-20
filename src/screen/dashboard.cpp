@@ -31,7 +31,7 @@ void dashboard::draw()
 
     // Draw the components
     drawBattery();
-    // drawMain();
+    drawMain();
 }
 
 void dashboard::update()
@@ -134,26 +134,96 @@ void updateVoltage()
     spr.deleteSprite();
 }
 
-// void drawMain()
-// {
-//     // Draw the speed background
-//     int mainBackgroundRadius = 110;
-//     int mainBackgroundX = 120;
-//     int mainBackgroundY = 140;
+void drawMain()
+{
+    // Draw the speed background
+    int mainBackgroundRadius = 110;
+    int mainBackgroundX = 120;
+    int mainBackgroundY = 140;
 
-//     tft.fillSmoothCircle(mainBackgroundX, mainBackgroundY, mainBackgroundRadius, TFT_BLACK, COLOR_BACKGROUND);
+    tft.fillSmoothCircle(mainBackgroundX, mainBackgroundY, mainBackgroundRadius, TFT_BLACK, COLOR_BACKGROUND);
 
-//     // Draw the power arc
-//     drawPowerArc();
-//     updatePower();
+    // Draw the speed arc
+    drawSpeedArc();
 
-//     // Draw the speed arc
-//     drawSpeedArc();
-//     updateSpeed();
+    // // Draw the power arc
+    // drawPowerArc();
+}
 
-//     // Draw the gear
-//     updateGear();
-// }
+void drawSpeedArc()
+{
+    int speedArcRadius = 100;
+    int speedArcAngle = 220;
+
+    int speedArcStartAngle = 180 - speedArcAngle / 2;
+    int speedArcEndAngle = 180 + speedArcAngle / 2;
+
+    // Either 25 or 50 (km/h)
+    int maxSpeed = 50;
+
+    int speedBars = maxSpeed == 50 ? 10 + 1 : 5 + 1;
+    int smallSpeedBars = maxSpeed == 50 ? 20 + 1 : 10 + 1;
+
+    int speedBarHeight = 8;
+    int smallSpeedBarHeight = 4;
+
+    int divider = 5;
+
+    // Draw the red arc if over 30 km/h
+    if (maxSpeed == 50)
+    {
+        int startAngle = speedArcStartAngle + (double)speedArcAngle / 2 + 22; // 22 is the offset (one bar)
+        int previousColor = TFT_BLACK;                                        // Used to draw the gradient with smooth arc
+
+        for (int i = 8; i > 0; i--)
+        {
+            int color = tft.color565(255 - i * 16, 0, 0); // From dark red to red
+
+            tft.drawSmoothArc(120, 140, speedArcRadius - i + 1, speedArcRadius - i, startAngle, speedArcEndAngle, color, previousColor);
+
+            previousColor = color;
+        }
+    }
+
+    // Draw small speed bars
+    for (int i = 0; i < smallSpeedBars; i++)
+    {
+        int startAngle = speedArcStartAngle + (double)speedArcAngle / (smallSpeedBars - 1) * i;
+        int endAngle = startAngle + 1;
+
+        tft.drawSmoothArc(120, 140, speedArcRadius, speedArcRadius - smallSpeedBarHeight, startAngle, endAngle, TFT_WHITE, TFT_BLACK);
+    }
+
+    // Draw speed bars
+    for (int i = 0; i < speedBars; i++)
+    {
+        int startAngle = speedArcStartAngle + (double)speedArcAngle / (speedBars - 1) * i;
+        int endAngle = startAngle + 1;
+
+        tft.drawSmoothArc(120, 140, speedArcRadius, speedArcRadius - speedBarHeight, startAngle, endAngle, TFT_WHITE, TFT_BLACK);
+    }
+
+    // Draw the arc
+    tft.drawSmoothArc(120, 140, speedArcRadius, speedArcRadius - 1, speedArcStartAngle, speedArcEndAngle, TFT_WHITE, TFT_BLACK);
+
+    // Draw the speed text
+    tft.loadFont(FONT_S);
+    for (int i = 0; i < speedBars; i++)
+    {
+        int startAngle = 160 + (double)speedArcAngle / (speedBars - 1) * i + 1;
+
+        tft.setTextColor(TFT_WHITE, TFT_BLACK, true);
+        tft.setTextDatum(CC_DATUM);
+
+        int speed = divider * i;
+
+        int speedBarX = 120 + cos(startAngle * PI / 180.0) * (speedArcRadius - 18);
+        int speedBarY = 140 + sin(startAngle * PI / 180.0) * (speedArcRadius - 18);
+
+        tft.drawString(String(speed), speedBarX, speedBarY, 1);
+    }
+    tft.unloadFont();
+}
 
 // void drawPowerArc()
 // {
@@ -254,84 +324,6 @@ void updateVoltage()
 //     tft.drawSmoothArc(120, 140, powerArcRadius, powerArcInnerRadius, absEndAngle, startAngle, TFT_BLACK, TFT_BLACK);
 // }
 
-// void drawSpeedArc()
-// {
-//     int speedArcRadius = 100;
-//     int speedArcAngle = 220;
-
-//     int speedArcStartAngle = 180 - speedArcAngle / 2;
-//     int speedArcEndAngle = 180 + speedArcAngle / 2;
-
-//     int maxSpeed = 50;
-
-//     if (maxSpeed == 50)
-//     {
-//         int startAngle = speedArcStartAngle + (double)speedArcAngle / 2 + 22;
-//         int previousColor = TFT_BLACK;
-
-//         for (int i = 8; i > 0; i--)
-//         {
-//             int color = tft.color565(255 - i * 16, 0, 0);
-
-//             tft.drawSmoothArc(120, 140, speedArcRadius - i + 1, speedArcRadius - i, startAngle, speedArcEndAngle, color, previousColor);
-
-//             previousColor = color;
-//         }
-//     };
-
-//     tft.drawSmoothArc(120, 140, speedArcRadius, speedArcRadius - 1, speedArcStartAngle, speedArcEndAngle, TFT_WHITE, TFT_BLACK);
-
-//     int smallSpeedBarHeight = 4;
-//     int smallSpeedBars = 20 + 1;
-
-//     for (int i = 0; i < smallSpeedBars; i++)
-//     {
-//         int startAngle = speedArcStartAngle + (double)speedArcAngle / (smallSpeedBars - 1) * i;
-//         int endAngle = startAngle + 1;
-
-//         tft.drawSmoothArc(120, 140, speedArcRadius, speedArcRadius - smallSpeedBarHeight, startAngle, endAngle, TFT_WHITE, TFT_BLACK);
-//     }
-
-//     int speedBars = 10 + 1;
-//     int speedBarHeight = 8;
-
-//     for (int i = 0; i < speedBars; i++)
-//     {
-//         int startAngle = speedArcStartAngle + (double)speedArcAngle / (speedBars - 1) * i;
-//         int endAngle = startAngle + 1;
-
-//         tft.drawSmoothArc(120, 140, speedArcRadius, speedArcRadius - speedBarHeight, startAngle, endAngle, TFT_WHITE, TFT_BLACK);
-//     }
-
-//     double divider = maxSpeed == 50 ? 5 : 2.5;
-//     tft.setTextFont(2);
-//     for (int i = 0; i < speedBars; i++)
-//     {
-//         int startAngle = 160 + (double)speedArcAngle / (speedBars - 1) * i + 1;
-
-//         tft.setTextColor(TFT_WHITE, TFT_BLACK, true);
-//         tft.setTextDatum(CC_DATUM);
-
-//         double speed = (double)maxSpeed / divider / (speedBars - 1) * i;
-//         speed *= divider;
-
-//         String speedString = String(speed, 0);
-
-//         if (divider != 5 && i % 2 != 0)
-//             speedString = String(speed, 1);
-
-//         int offset = 0;
-//         if (speed == 0 || speed == 5)
-//         {
-//             offset = 4;
-//         }
-
-//         int speedBarX = 120 + cos(startAngle * PI / 180.0) * (speedArcRadius - 18 + offset);
-//         int speedBarY = 140 + sin(startAngle * PI / 180.0) * (speedArcRadius - 18 + offset);
-
-//         tft.drawString(speedString, speedBarX, speedBarY, 1);
-//     }
-// }
 // void updateSpeed()
 // {
 //     String speedString = String(speed).c_str();
