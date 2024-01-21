@@ -8,6 +8,11 @@ Button::Button(const int pin)
     pinMode(pin, INPUT_PULLUP);
 }
 
+bool Button::isPressed()
+{
+    return digitalRead(this->pin) == LOW;
+}
+
 void Button::setLongPressTime(unsigned int time)
 {
     this->longPressTime = time;

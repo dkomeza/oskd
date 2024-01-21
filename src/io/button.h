@@ -24,6 +24,8 @@ public:
 
     void update();
 
+    bool isPressed();
+
 private:
     int pin;
     ButtonState state;
