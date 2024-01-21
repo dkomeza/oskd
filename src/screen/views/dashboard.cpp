@@ -1,5 +1,5 @@
 #include "dashboard.h"
-#include "tft.h"
+#include "screen/tft.h"
 #include "data/data.h"
 #include "settings/settings.h"
 

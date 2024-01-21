@@ -1,6 +1,6 @@
 #include "screen.h"
-#include "dashboard.h"
-#include "settings.h"
+#include "views/dashboard.h"
+#include "views/settings.h"
 #include "tft.h"
 
 View currentView = View::Dashboard;
