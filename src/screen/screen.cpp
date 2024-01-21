@@ -18,8 +18,6 @@ void screen::setup()
     pinMode(BACKLIGHT_PIN, OUTPUT);
     digitalWrite(BACKLIGHT_PIN, HIGH);
 
-    ofr.setDrawer(tft);
-
     switch (currentView)
     {
     case View::Dashboard:
@@ -31,8 +29,30 @@ void screen::setup()
     }
 }
 
-void screen::loop()
+void screen::draw()
 {
+    switch (currentView)
+    {
+    case View::Dashboard:
+        dashboard::draw();
+        break;
+
+    default:
+        break;
+    }
+}
+
+void screen::loop(bool force)
+{
+    switch (currentView)
+    {
+    case View::Dashboard:
+        dashboard::update(force);
+        break;
+
+    default:
+        break;
+    }
 }
 
 void screen::setView(View view)

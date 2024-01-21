@@ -1,6 +1,7 @@
 #include "dashboard.h"
 #include "tft.h"
 #include "data/data.h"
+#include "settings/settings.h"
 
 static const int BATTERY_MAX_VOLTAGE = 520; // 52.0V
 static const int BATTERY_MIN_VOLTAGE = 420; // 42.0V
@@ -34,29 +35,28 @@ void dashboard::draw()
     drawMain();
 }
 
-void dashboard::update()
+void dashboard::update(bool force)
 {
-    if (data::voltage != voltage)
+    if (data::voltage != voltage || force)
     {
         voltage = data::voltage;
         updateVoltage();
         updateBattery();
     }
 
-    if (data::speed != speed)
+    if (data::speed != speed || force)
     {
-        Serial.println(data::speed);
         speed = data::speed;
         updateSpeed();
     }
 
-    if (data::power != power)
+    if (data::power != power || force)
     {
         power = data::power;
         updatePower();
     }
 
-    if (data::gear != gear)
+    if (data::gear != gear || force)
     {
         gear = data::gear;
         updateGear();
@@ -167,7 +167,7 @@ void drawSpeedArc()
     int speedArcEndAngle = 180 + speedArcAngle / 2;
 
     // Either 25 or 50 (km/h)
-    int maxSpeed = 50;
+    int maxSpeed = settings::legal ? 25 : 50;
 
     int speedBars = maxSpeed == 50 ? 10 + 1 : 5 + 1;
     int smallSpeedBars = maxSpeed == 50 ? 50 + 1 : 25 + 1;
@@ -240,7 +240,7 @@ void drawPowerArc()
     int powerArcStartAngle = 360 - powerArcAngle / 2;
     int powerArcEndAngle = powerArcAngle / 2;
 
-    int maxPower = 1500; // Divisible by 500
+    int maxPower = settings::legal ? 250 : settings::maxPower; // Divisible by 500
     int divider = maxPower == 250 ? 10 : 100;
 
     int powerBars = 5 + 1;
@@ -311,6 +311,8 @@ void drawPowerArc()
 
 void updateSpeed()
 {
+    int s = speed;
+
     int speedArcRadius = 106;
     int speedArcInnerRadius = 102;
 
@@ -320,13 +322,13 @@ void updateSpeed()
     int speedArcEndAngle = 180 + speedArcMaxAngle / 2;
 
     // Either 25 or 50 (km/h)
-    int maxSpeed = 50;
+    int maxSpeed = settings::legal ? 25 : 50;
 
-    if (speed > 99)
-        speed = 99;
+    if (s > 99)
+        s = 99;
 
-    else if (speed < 0)
-        speed = 0;
+    else if (s < 0)
+        s = 0;
 
     spr.createSprite(220, 220);
     spr.fillSprite(TFT_TRANSPARENT);
@@ -340,13 +342,14 @@ void updateSpeed()
     spr.drawString(String(speed), 110, 50);
     spr.unloadFont();
 
-    if (speed > maxSpeed)
-        speed = maxSpeed;
+    if (s > maxSpeed)
+        s = maxSpeed;
 
     int endAngle = speedArcStartAngle + (double)speedArcMaxAngle / (double)maxSpeed * speed;
 
     spr.drawSmoothArc(110, 110, speedArcRadius, speedArcInnerRadius, speedArcStartAngle, speedArcEndAngle, TFT_BLACK, TFT_BLACK);
-    spr.drawSmoothArc(110, 110, speedArcRadius, speedArcInnerRadius, speedArcStartAngle, endAngle, TFT_GREEN, TFT_BLACK);
+    if (s > 0)
+        spr.drawSmoothArc(110, 110, speedArcRadius, speedArcInnerRadius, speedArcStartAngle, endAngle, TFT_GREEN, TFT_BLACK);
 
     spr.pushSprite(120 - 110, 140 - 110, TFT_TRANSPARENT);
     spr.deleteSprite();
@@ -360,7 +363,7 @@ void updatePower()
 
     int powerArcAngle = 90;
 
-    int maxPower = 1500;
+    int maxPower = settings::legal ? 250 : settings::maxPower;
 
     if (power > 9999)
         p = 9999;
@@ -395,7 +398,9 @@ void updatePower()
         endAngle += 360;
 
     spr.drawSmoothArc(110, 110, powerArcRadius, powerArcInnerRadius, powerArcEndAngle, powerArcStartAngle, TFT_BLACK, TFT_BLACK);
-    spr.drawSmoothArc(110, 110, powerArcRadius, powerArcInnerRadius, endAngle, powerArcStartAngle, TFT_YELLOW, TFT_BLACK);
+
+    if (p > 0)
+        spr.drawSmoothArc(110, 110, powerArcRadius, powerArcInnerRadius, endAngle, powerArcStartAngle, TFT_YELLOW, TFT_BLACK);
 
     spr.pushSprite(120 - 110, 140 - 110, TFT_TRANSPARENT);
     spr.deleteSprite();

@@ -2,7 +2,8 @@
 
 #include <Arduino.h>
 
-enum class View {
+enum class View
+{
     Dashboard,
     Settings,
 };
@@ -10,7 +11,8 @@ enum class View {
 namespace screen
 {
     void setup();
-    void loop();
+    void draw();
+    void loop(bool force = false);
 
     void setView(View view);
 }

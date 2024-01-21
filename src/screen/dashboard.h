@@ -6,5 +6,5 @@ namespace dashboard
 {
     void draw();
 
-    void update();
+    void update(bool force = false);
 }
