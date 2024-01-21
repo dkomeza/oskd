@@ -8,11 +8,6 @@
 
 #include "io/button.h"
 
-Button button(27);
-Button button2(12);
-
-bool rising = true;
-
 void setup()
 {
     Serial.begin(115200);
