@@ -24,18 +24,18 @@ void setup()
     button.setLongPressTime(600);
 
     button.onClick([]()
-                   { data::voltage--; });
+                   { data::gear--; });
 
     button.onLongPress([]()
-                       { data::voltage -= 1; },
-                       1);
+                       { data::power -= 13; },
+                       50);
 
     button2.onClick([]()
-                    { data::voltage++; });
+                    { data::gear++; });
 
     button2.onLongPress([]()
-                        { data::voltage += 1; },
-                        1);
+                        { data::power += 13; },
+                        50);
 
     Serial.println("Started!");
 }

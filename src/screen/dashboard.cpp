@@ -5,10 +5,10 @@
 static const int BATTERY_MAX_VOLTAGE = 520; // 52.0V
 static const int BATTERY_MIN_VOLTAGE = 420; // 42.0V
 
-int speed = 0;
-int gear = 0;
-int power = 0;
-int voltage = 0;
+int speed = -1;
+int gear = -1;
+int power = -1;
+int voltage = -1;
 
 void drawBattery();
 void updateBattery();
@@ -43,23 +43,24 @@ void dashboard::update()
         updateBattery();
     }
 
-    // if (data::power != power)
-    // {
-    //     power = data::power;
-    //     updatePower();
-    // }
+    if (data::speed != speed)
+    {
+        Serial.println(data::speed);
+        speed = data::speed;
+        updateSpeed();
+    }
 
-    // if (data::speed != speed)
-    // {
-    //     speed = data::speed;
-    //     updateSpeed();
-    // }
+    if (data::power != power)
+    {
+        power = data::power;
+        updatePower();
+    }
 
-    // if (data::gear != gear)
-    // {
-    //     gear = data::gear;
-    //     updateGear();
-    // }
+    if (data::gear != gear)
+    {
+        gear = data::gear;
+        updateGear();
+    }
 }
 
 void drawBattery()
@@ -81,7 +82,6 @@ void drawBattery()
     tft.fillSmoothRoundRect(batteryX, batteryY, batteryWidth, batteryHeight, batteryRadius, TFT_WHITE);
     tft.fillRoundRect(batteryTabX, batteryTabY, batteryTabWidth, batteryTabHeight, batteryTabRadius, TFT_WHITE);
 }
-
 void updateBattery()
 {
     int padding = 1;
@@ -112,7 +112,6 @@ void updateBattery()
     spr.pushSprite(batteryX, batteryY);
     spr.deleteSprite();
 }
-
 void updateVoltage()
 {
     int voltageX = 8;
@@ -143,13 +142,22 @@ void drawMain()
 
     tft.fillSmoothCircle(mainBackgroundX, mainBackgroundY, mainBackgroundRadius, TFT_BLACK, COLOR_BACKGROUND);
 
+    int wedgeX = 60;
+    int wedgeX2 = wedgeX + 30;
+    int wedgeY = 148;
+
+    uint16_t color = tft.color565(192, 0, 0);
+
+    tft.drawWedgeLine(60, wedgeY, 90, wedgeY, 0.1, 1.5, color, TFT_BLACK);
+    tft.drawWedgeLine(240 - wedgeX, wedgeY, 240 - wedgeX2, wedgeY, 0.1, 1.5, color, TFT_BLACK);
+    tft.drawWideLine(wedgeX2, wedgeY, 240 - wedgeX2, wedgeY, 3, color, TFT_RED);
+
     // Draw the speed arc
     drawSpeedArc();
 
     // Draw the power arc
     drawPowerArc();
 }
-
 void drawSpeedArc()
 {
     int speedArcRadius = 100;
@@ -224,7 +232,6 @@ void drawSpeedArc()
     }
     tft.unloadFont();
 }
-
 void drawPowerArc()
 {
     int powerArcRadius = 100;
@@ -233,7 +240,7 @@ void drawPowerArc()
     int powerArcStartAngle = 360 - powerArcAngle / 2;
     int powerArcEndAngle = powerArcAngle / 2;
 
-    int maxPower = 1000; // Divisible by 500
+    int maxPower = 1500; // Divisible by 500
     int divider = maxPower == 250 ? 10 : 100;
 
     int powerBars = 5 + 1;
@@ -283,7 +290,7 @@ void drawPowerArc()
 
     // Draw the power text
     tft.loadFont(FONT_S);
-    for (int i = 0; i < powerBars; i++)
+    for (int i = 1; i < powerBars; i++)
     {
         int startAngle = 360 - powerArcAngle / (powerBars - 1) * i + powerArcAngle * 1.5;
 
@@ -297,102 +304,119 @@ void drawPowerArc()
 
         tft.drawString(String(power), powerBarX, powerBarY, 1);
     }
+
+    tft.drawString("x" + String(divider) + "W", 56, 200, 1);
+    tft.unloadFont();
 }
 
-// void updatePower()
-// {
-//     int powerArcRadius = 106;
-//     int powerArcInnerRadius = 102;
+void updateSpeed()
+{
+    int speedArcRadius = 106;
+    int speedArcInnerRadius = 102;
 
-//     int powerArcMaxAngle = 90;
+    int speedArcMaxAngle = 220;
 
-//     int maxPower = 1500;
+    int speedArcStartAngle = 180 - speedArcMaxAngle / 2;
+    int speedArcEndAngle = 180 + speedArcMaxAngle / 2;
 
-//     int pow = data::power > maxPower ? maxPower : data::power;
+    // Either 25 or 50 (km/h)
+    int maxSpeed = 50;
 
-//     if (pow < 0)
-//         pow = 0;
+    if (speed > 99)
+        speed = 99;
 
-//     int endAngle = 45;
-//     int absEndAngle = 360 - endAngle;
-//     int startAngle = endAngle - (double)pow / (double)maxPower * powerArcMaxAngle;
+    else if (speed < 0)
+        speed = 0;
 
-//     if (startAngle < 0)
-//         startAngle = 360 + startAngle;
+    spr.createSprite(220, 220);
+    spr.fillSprite(TFT_TRANSPARENT);
 
-//     if (startAngle != endAngle)
-//         tft.drawSmoothArc(120, 140, powerArcRadius, powerArcInnerRadius, startAngle, endAngle, TFT_GREEN, TFT_BLACK);
+    // Draw the speed text
+    spr.loadFont(FONT_XL);
+    spr.setTextColor(TFT_WHITE, TFT_BLACK);
+    spr.setTextDatum(TC_DATUM);
 
-//     if (pow == maxPower)
-//         return;
-//     tft.drawSmoothArc(120, 140, powerArcRadius, powerArcInnerRadius, absEndAngle, startAngle, TFT_BLACK, TFT_BLACK);
-// }
+    spr.fillRect(110 - 48, 50, 96, 61, TFT_BLACK);
+    spr.drawString(String(speed), 110, 50);
+    spr.unloadFont();
 
-// void updateSpeed()
-// {
-//     String speedString = String(speed).c_str();
+    if (speed > maxSpeed)
+        speed = maxSpeed;
 
-//     tft.loadFont(FONT_HUGE);
+    int endAngle = speedArcStartAngle + (double)speedArcMaxAngle / (double)maxSpeed * speed;
 
-//     tft.setTextColor(TFT_WHITE, TFT_BLACK, true);
-//     tft.setTextDatum(CC_DATUM);
+    spr.drawSmoothArc(110, 110, speedArcRadius, speedArcInnerRadius, speedArcStartAngle, speedArcEndAngle, TFT_BLACK, TFT_BLACK);
+    spr.drawSmoothArc(110, 110, speedArcRadius, speedArcInnerRadius, speedArcStartAngle, endAngle, TFT_GREEN, TFT_BLACK);
 
-//     int padding = tft.textWidth("00");
-//     tft.setTextPadding(padding);
+    spr.pushSprite(120 - 110, 140 - 110, TFT_TRANSPARENT);
+    spr.deleteSprite();
+}
+void updatePower()
+{
+    int powerArcRadius = 106;
+    int powerArcInnerRadius = 102;
 
-//     tft.drawString(speedString, 120, 125);
+    int p = power;
 
-//     tft.unloadFont();
+    int powerArcAngle = 90;
 
-//     int speedArcRadius = 106;
-//     int speedArcInnerRadius = 102;
+    int maxPower = 1500;
 
-//     int speedArcMaxAngle = 220;
+    if (power > 9999)
+        p = 9999;
 
-//     int maxSpeed = 50;
+    else if (power < 0)
+        p = 0;
 
-//     int speed = data::speed > maxSpeed ? maxSpeed : data::speed;
+    spr.createSprite(220, 220);
+    spr.fillSprite(TFT_TRANSPARENT);
 
-//     if (speed < 0)
-//         speed = 0;
+    // spr.fillRect(110 - 40, 130, 80, 14, TFT_BLACK);
+    // spr.loadFont(FONT_SM);
+    // spr.setTextColor(TFT_WHITE, TFT_BLACK);
+    // spr.setTextDatum(TC_DATUM);
 
-//     int startAngle = 180 - speedArcMaxAngle / 2;
-//     int endAngle = startAngle + (double)speed / (double)maxSpeed * speedArcMaxAngle;
+    // String powerString = String(power);
 
-//     if (startAngle != endAngle)
-//         tft.drawSmoothArc(120, 140, speedArcRadius, speedArcInnerRadius, startAngle, endAngle, TFT_GREEN, TFT_BLACK);
+    // while (powerString.length() < 4)
+    //     powerString = "0" + powerString;
 
-//     if (speed == maxSpeed)
-//         return;
+    // spr.drawString(powerString + "W", 110, 130);
 
-//     int absEndAngle = startAngle + speedArcMaxAngle;
-//     tft.drawSmoothArc(120, 140, speedArcRadius, speedArcInnerRadius, endAngle, absEndAngle, TFT_BLACK, TFT_BLACK);
-// }
+    if (p > maxPower)
+        p = maxPower;
 
-// void updateGear()
-// {
-//     int gearX = 120;
-//     int gearY = 150;
+    int powerArcStartAngle = powerArcAngle / 2;
+    int powerArcEndAngle = 360 - powerArcAngle / 2;
 
-//     spr.createSprite(64, 64);
-//     spr.fillSprite(TFT_BLACK);
+    int endAngle = powerArcStartAngle - (double)powerArcAngle / (double)maxPower * p;
 
-//     ofr.setDrawer(spr);
+    if (endAngle < 0)
+        endAngle += 360;
 
-//     ofr.setFontColor(TFT_WHITE, TFT_BLACK);
+    spr.drawSmoothArc(110, 110, powerArcRadius, powerArcInnerRadius, powerArcEndAngle, powerArcStartAngle, TFT_BLACK, TFT_BLACK);
+    spr.drawSmoothArc(110, 110, powerArcRadius, powerArcInnerRadius, endAngle, powerArcStartAngle, TFT_YELLOW, TFT_BLACK);
 
-//     if (ofr.loadFont(FONT_BINARY, sizeof(FONT_BINARY)))
-//     {
-//         Serial.println("dupa");
-//     }
-//     ofr.setCursor(32, 0);
+    spr.pushSprite(120 - 110, 140 - 110, TFT_TRANSPARENT);
+    spr.deleteSprite();
 
-//     ofr.setAlignment(Align::TopCenter);
-//     ofr.setFontSize(64);
-//     ofr.cprintf("%d", gear);
+    // Draw the power text
+}
+void updateGear()
+{
+    int gearX = 120;
+    int gearY = 158;
 
-//     ofr.unloadFont();
+    spr.createSprite(64, 56);
 
-//     spr.pushSprite(gearX - 32, gearY);
-//     spr.deleteSprite();
-// }
+    spr.fillSprite(TFT_BLACK);
+    spr.setTextDatum(TC_DATUM);
+    spr.setTextColor(TFT_WHITE, TFT_BLACK);
+
+    spr.loadFont(FONT_L);
+    spr.drawString(String(gear), 32, 0);
+    spr.unloadFont();
+
+    spr.pushSprite(gearX - 32, gearY);
+    spr.deleteSprite();
+}
