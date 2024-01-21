@@ -2,7 +2,6 @@
 
 #include <TFT_eSPI.h>
 #include <Arduino.h>
-#include <OpenFontRender.h>
 
 #include "fonts/Font12.h"
 #include "fonts/Font20.h"
@@ -24,4 +23,3 @@ typedef uint16_t Color;
 
 extern TFT_eSPI tft;
 extern TFT_eSprite spr;
-extern OpenFontRender ofr;
