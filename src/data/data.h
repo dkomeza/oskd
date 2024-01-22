@@ -8,4 +8,6 @@ namespace data
     extern int gear;
     extern int power;
     extern int voltage;
+    extern int engineTemperature;
+    extern bool brake;
 }
