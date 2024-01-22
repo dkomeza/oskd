@@ -13,6 +13,16 @@ void IO::setup()
 
 void IO::update()
 {
+  long now = millis();
+
+  if (now < lastUpdate)
+    lastUpdate = now;
+
+  if (now - lastUpdate < UPDATE_INTERVAL)
+    return;
+
+  lastUpdate = now;
+
   data::voltage = getVoltage();
 }
 

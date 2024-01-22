@@ -16,6 +16,9 @@ private:
 
   int voltageOffset;
 
+  static const int UPDATE_INTERVAL = 100; // ms
+  long lastUpdate = 0;
+
   int getVoltageOffset();
   int getVoltage();
 };

@@ -8,6 +8,7 @@
 #include "controller/controller.h"
 
 #include "io/button.h"
+#include "io/io.h"
 
 const int BUTTON_DOWN_PIN = 14;
 const int BUTTON_POWER_PIN = 27;
@@ -30,6 +31,7 @@ void setup()
 
     controller.setup();
     connection::setupOTA();
+    io.setup();
 }
 
 void loop()
@@ -37,6 +39,7 @@ void loop()
     controller.update();
     screen::loop();
     connection::loop();
+    io.update();
 
     uButton.update();
     dButton.update();
@@ -58,7 +61,10 @@ void startup()
 
     if (pButton.isPressed() && dButton.isPressed())
     {
-        Serial.println("Settings");
+        screen::setView(View::Settings);
+        screen::setup();
+        screen::loop();
+        return;
     }
 
     screen::setup();
