@@ -1,7 +1,7 @@
 #include "dashboard.h"
 #include "screen/tft.h"
 #include "data/data.h"
-#include "settings/settings.h"
+#include "controller/controller.h"
 
 static const int BATTERY_MAX_VOLTAGE = 520; // 52.0V
 static const int BATTERY_MIN_VOLTAGE = 420; // 42.0V
@@ -167,7 +167,7 @@ void drawSpeedArc()
     int speedArcEndAngle = 180 + speedArcAngle / 2;
 
     // Either 25 or 50 (km/h)
-    int maxSpeed = settings::legal ? 25 : 50;
+    int maxSpeed = controller.getMaxSpeed();
 
     int speedBars = maxSpeed == 50 ? 10 + 1 : 5 + 1;
     int smallSpeedBars = maxSpeed == 50 ? 50 + 1 : 25 + 1;
@@ -240,7 +240,7 @@ void drawPowerArc()
     int powerArcStartAngle = 360 - powerArcAngle / 2;
     int powerArcEndAngle = powerArcAngle / 2;
 
-    int maxPower = settings::legal ? 250 : settings::maxPower; // Divisible by 500
+    int maxPower = controller.getMaxPower(); // Divisible by 500
     int divider = maxPower == 250 ? 10 : 100;
 
     int powerBars = 5 + 1;
@@ -322,7 +322,7 @@ void updateSpeed()
     int speedArcEndAngle = 180 + speedArcMaxAngle / 2;
 
     // Either 25 or 50 (km/h)
-    int maxSpeed = settings::legal ? 25 : 50;
+    int maxSpeed = controller.getMaxSpeed();
 
     if (s > 99)
         s = 99;
@@ -363,7 +363,7 @@ void updatePower()
 
     int powerArcAngle = 90;
 
-    int maxPower = settings::legal ? 250 : settings::maxPower;
+    int maxPower = controller.getMaxPower();
 
     if (power > 9999)
         p = 9999;

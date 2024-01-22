@@ -24,6 +24,26 @@ void Controller::update()
     receivePacket();
 }
 
+void Controller::setLegalMode(bool legalMode)
+{
+    this->legalMode = legalMode;
+
+    this->maxSpeed = legalMode ? 25 : 50;
+    this->maxPower = legalMode ? 250 : this->_maxPower;
+
+    sendPacket();
+}
+
+int Controller::getMaxSpeed()
+{
+    return this->maxSpeed;
+}
+
+int Controller::getMaxPower()
+{
+    return this->maxPower;
+}
+
 void Controller::sendPacket()
 {
 }

@@ -11,6 +11,11 @@ public:
     void setup();
     void update();
 
+    void setLegalMode(bool legalMode);
+
+    int getMaxSpeed();
+    int getMaxPower();
+
 private:
     HardwareSerial *serial;
 
@@ -25,6 +30,11 @@ private:
 
     static const int UPDATE_INTERVAL = 100; // ms
     long lastUpdate = 0;
+
+    bool legalMode = true;
+    int maxSpeed = 25;
+    int maxPower = 250;
+    int _maxPower = 1500; // read from the settings
 
     void sendPacket();
     void receivePacket();

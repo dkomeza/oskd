@@ -4,8 +4,8 @@
 #include "connection/OTA.h"
 #include "screen/screen.h"
 #include "data/data.h"
-#include "screen/dashboard.h"
 #include "settings/settings.h"
+#include "controller/controller.h"
 
 #include "io/button.h"
 
@@ -27,10 +27,20 @@ void setup()
     Serial.begin(115200);
 
     startup();
+
+    controller.setup();
+    connection::setupOTA();
 }
 
 void loop()
 {
+    controller.update();
+    screen::loop();
+    connection::loop();
+
+    uButton.update();
+    dButton.update();
+    pButton.update();
 }
 
 void startup()
@@ -67,7 +77,7 @@ void startup()
         delay(10);
     }
 
-    settings::legal = legalMode;
+    controller.setLegalMode(legalMode);
 
     if (legalMode)
         return;
