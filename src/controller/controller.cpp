@@ -1,6 +1,8 @@
 #include "controller.h"
 #include "data/data.h"
 
+Controller controller;
+
 void Controller::setup()
 {
     serial = new HardwareSerial(2);

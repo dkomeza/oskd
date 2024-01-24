@@ -150,7 +150,7 @@ void drawMain()
 
     tft.drawWedgeLine(60, wedgeY, 90, wedgeY, 0.1, 1.5, color, TFT_BLACK);
     tft.drawWedgeLine(240 - wedgeX, wedgeY, 240 - wedgeX2, wedgeY, 0.1, 1.5, color, TFT_BLACK);
-    tft.drawWideLine(wedgeX2, wedgeY, 240 - wedgeX2, wedgeY, 3, color, TFT_RED);
+    tft.drawWideLine(wedgeX2, wedgeY, 240 - wedgeX2, wedgeY, 3, color, color);
 
     // Draw the speed arc
     drawSpeedArc();

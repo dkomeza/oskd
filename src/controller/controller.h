@@ -26,7 +26,7 @@ private:
     static const int PACKET_UP_SIZE = 13;
     static const int PACKET_DOWN_SIZE = 12;
 
-    static const double RPM_CONSTANT = 0.1885;
+    const double RPM_CONSTANT = 0.1885;
 
     static const int UPDATE_INTERVAL = 100; // ms
     long lastUpdate = 0;
