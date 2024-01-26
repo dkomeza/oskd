@@ -7,7 +7,7 @@
 
 namespace connection
 {
-    IPAddress setupOTA()
+    IPAddress setup()
     {
         ArduinoOTA.setHostname("OSKD");
 

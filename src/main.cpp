@@ -32,7 +32,7 @@ void setup()
     // screen::setup();
 
     controller.setup();
-    connection::setupOTA();
+    connection::setup();
     io.setup();
 }
 
