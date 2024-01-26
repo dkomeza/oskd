@@ -16,6 +16,9 @@ public:
     int getMaxSpeed();
     int getMaxPower();
 
+    void handleButtonUp();
+    void handleButtonDown();
+
 private:
     HardwareSerial *serial;
 

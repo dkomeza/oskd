@@ -3,6 +3,8 @@
 
 #include "connection/OTA.h"
 #include "screen/screen.h"
+#include "screen/views/dashboard.h"
+
 #include "data/data.h"
 #include "settings/settings.h"
 #include "controller/controller.h"
@@ -19,6 +21,7 @@ Button uButton = Button(BUTTON_UP_PIN);
 Button dButton = Button(BUTTON_DOWN_PIN);
 
 void startup();
+void setupButtons();
 
 void setup()
 {
@@ -28,6 +31,7 @@ void setup()
     Serial.begin(115200);
 
     startup();
+    setupButtons();
 
     // screen::setup();
 
@@ -95,4 +99,25 @@ void startup()
 
     screen::updateLegalMode();
     screen::loop(true);
+}
+
+void setupButtons()
+{
+    uButton.onClick([]()
+                    {
+        switch (screen::view)
+        {
+            case View::Dashboard:
+                controller.handleButtonUp();
+                break;
+        } });
+
+    dButton.onClick([]()
+                    {
+        switch (screen::view)
+        {
+            case View::Dashboard:
+                controller.handleButtonDown();
+                break;
+        } });
 }

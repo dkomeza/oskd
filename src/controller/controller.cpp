@@ -46,6 +46,26 @@ int Controller::getMaxPower()
     return this->maxPower;
 }
 
+void Controller::handleButtonDown()
+{
+    int MIN_GEAR = 0;
+
+    if (data::gear > MIN_GEAR)
+        data::gear--;
+
+    sendPacket();
+}
+
+void Controller::handleButtonUp()
+{
+    int MAX_GEAR = this->legalMode ? 2 : 5;
+
+    if (data::gear < MAX_GEAR)
+        data::gear++;
+
+    sendPacket();
+}
+
 void Controller::sendPacket()
 {
 }

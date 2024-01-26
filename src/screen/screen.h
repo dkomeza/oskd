@@ -10,6 +10,8 @@ enum class View
 
 namespace screen
 {
+    extern View view;
+
     void setup();
     void draw();
     void loop(bool force = false);

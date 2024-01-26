@@ -3,7 +3,7 @@
 #include "views/settings.h"
 #include "tft.h"
 
-View currentView = View::Dashboard;
+View screen::view = View::Dashboard;
 
 static const int BACKLIGHT_PIN = 26;
 
@@ -18,7 +18,7 @@ void screen::setup()
     pinMode(BACKLIGHT_PIN, OUTPUT);
     digitalWrite(BACKLIGHT_PIN, HIGH);
 
-    switch (currentView)
+    switch (screen::view)
     {
     case View::Dashboard:
         dashboard::draw();
@@ -31,7 +31,7 @@ void screen::setup()
 
 void screen::draw()
 {
-    switch (currentView)
+    switch (screen::view)
     {
     case View::Dashboard:
         dashboard::draw();
@@ -44,7 +44,7 @@ void screen::draw()
 
 void screen::loop(bool force)
 {
-    switch (currentView)
+    switch (screen::view)
     {
     case View::Dashboard:
         dashboard::update(force);
@@ -57,15 +57,15 @@ void screen::loop(bool force)
 
 void screen::setView(View view)
 {
-    if (currentView == view)
+    if (screen::view == view)
         return;
 
-    currentView = view;
+    screen::view = view;
 }
 
 void screen::updateLegalMode()
 {
-    switch (currentView)
+    switch (screen::view)
     {
     case View::Dashboard:
         dashboard::updateLegalMode();
