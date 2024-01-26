@@ -61,9 +61,9 @@ void dashboard::update(bool force)
         updatePower();
     }
 
-    if (data::gear != gear || force)
+    if (controller.gear != gear || force)
     {
-        gear = data::gear;
+        gear = controller.gear;
         updateGear();
     }
 }
