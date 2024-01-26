@@ -25,7 +25,7 @@
       "type": "shell",
       "command": "cd scripts && ./monitor.sh",
       "group": {
-        "kind": "none",
+        "kind": "test",
         "isDefault": true
       }
     }

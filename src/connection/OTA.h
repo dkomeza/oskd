@@ -14,7 +14,12 @@ namespace connection
         WiFi.mode(WIFI_STA);
         WiFi.begin(credentials::ssid, credentials::password);
 
-        WiFi.waitForConnectResult(500);
+        long start = millis();
+
+        while (millis() - start < 1000 && WiFi.waitForConnectResult() != WL_CONNECTED)
+        {
+            delay(100);
+        }
 
         ArduinoOTA.begin();
 

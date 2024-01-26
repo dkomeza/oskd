@@ -32,8 +32,11 @@ void setup()
     // screen::setup();
 
     controller.setup();
-    connection::setup();
     io.setup();
+    IPAddress ip = connection::setup();
+
+    Serial.print("IP address: ");
+    Serial.println(ip);
 }
 
 void loop()
