@@ -8,6 +8,7 @@
 #include "data/data.h"
 #include "settings/settings.h"
 #include "controller/controller.h"
+#include "settings/settings.h"
 
 #include "io/button.h"
 #include "io/io.h"
@@ -42,10 +43,14 @@ void setup()
 
 void loop()
 {
-    controller.update();
-    screen::loop();
+    if (screen::view == View::Dashboard)
+    {
+        controller.update();
+        screen::loop();
+        io.update();
+    }
+
     connection::loop();
-    io.update();
 
     uButton.update();
     dButton.update();
@@ -66,12 +71,16 @@ void startup()
         delay(10);
     }
 
+    settings.setup();
+
     // check for settings
-    if (pButton.isPressed() && dButton.isPressed())
+    if (pButton.isPressed() && dButton.isPressed() || true) // TODO: remove the true (for debug purposes)
     {
         screen::setView(View::Settings);
         screen::setup();
         screen::loop();
+
+        screen::lightUp();
         return;
     }
 
