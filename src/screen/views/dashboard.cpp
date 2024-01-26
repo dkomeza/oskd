@@ -436,7 +436,10 @@ void updateGear()
     spr.setTextColor(TFT_WHITE, TFT_BLACK);
 
     spr.loadFont(FONT_L);
-    spr.drawString(String(gear), 32, 0);
+    if (gear == 6)
+        spr.drawString("W", 32, 0);
+    else
+        spr.drawString(String(gear), 32, 0);
     spr.unloadFont();
 
     spr.pushSprite(gearX - 32, gearY);

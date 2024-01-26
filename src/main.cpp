@@ -37,13 +37,7 @@ void setup()
     setupButtons();
 
     // screen::setup();
-
-    controller.setup();
-    io.setup();
     IPAddress ip = connection::setup();
-
-    Serial.print("IP address: ");
-    Serial.println(ip);
 }
 
 void loop()
@@ -63,6 +57,7 @@ void startup()
     bool legalMode = false;
     long start = millis();
 
+    // startup routine
     while (start + 1000 > millis())
     {
         if (!pButton.isPressed())
@@ -71,6 +66,7 @@ void startup()
         delay(10);
     }
 
+    // check for settings
     if (pButton.isPressed() && dButton.isPressed())
     {
         screen::setView(View::Settings);
@@ -79,11 +75,24 @@ void startup()
         return;
     }
 
+    // Setup the controller and IO
+    controller.setup();
+    io.setup();
+
+    // Get initial data from the controller and update the IO
+    controller.update();
+    io.update();
+
+    // fill the screen
     screen::setup();
     screen::loop();
 
+    // Light up the screen
+    screen::lightUp();
+
     start = millis();
 
+    // legal mode routine
     while (start + 3000 > millis())
     {
         if (!pButton.isPressed() || !uButton.isPressed())
@@ -96,6 +105,7 @@ void startup()
     }
 
     controller.setLegalMode(legalMode);
+    controller.loadGear();
     screen::loop(true);
 }
 
@@ -151,6 +161,6 @@ void setupButtons()
         screen::shutdown();
         controller.shutdown(); 
         
-        delay(100);
+        delay(200);
         esp_deep_sleep_start(); });
 }

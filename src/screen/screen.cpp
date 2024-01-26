@@ -17,7 +17,6 @@ void screen::setup()
 
     gpio_hold_dis((gpio_num_t)BACKLIGHT_PIN);
     pinMode(BACKLIGHT_PIN, OUTPUT);
-    digitalWrite(BACKLIGHT_PIN, HIGH);
 
     switch (screen::view)
     {
@@ -30,10 +29,29 @@ void screen::setup()
     }
 }
 
+void screen::lightUp()
+{
+    int max_brightness = 256;
+
+    for (int i = 0; i < max_brightness; i++)
+    {
+        analogWrite(BACKLIGHT_PIN, i);
+        delay(5);
+    }
+}
+
 void screen::shutdown()
 {
+    for (int i = 255; i >= 0; i--)
+    {
+        analogWrite(BACKLIGHT_PIN, i);
+        delay(2);
+    }
+
+    analogWrite(BACKLIGHT_PIN, 0);
+
+    delay(50);
     gpio_hold_en((gpio_num_t)BACKLIGHT_PIN);
-    digitalWrite(BACKLIGHT_PIN, LOW);
 }
 
 void screen::draw()

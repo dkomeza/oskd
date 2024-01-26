@@ -10,11 +10,6 @@ void Controller::setup()
 
     serial->begin(CONTROLLER_BAUD_RATE, SERIAL_8N1, CONTROLLER_RX_PIN, CONTROLLER_TX_PIN);
 
-    gear = EEPROM.read(GEAR_ADDRESS);
-
-    if (gear > 5 || gear < 0)
-        gear = 0;
-
     gpio_hold_dis((gpio_num_t)POWER_PIN);
     pinMode(POWER_PIN, OUTPUT);
     digitalWrite(POWER_PIN, HIGH);
@@ -22,8 +17,24 @@ void Controller::setup()
 
 void Controller::shutdown()
 {
-    gpio_hold_en((gpio_num_t)POWER_PIN);
     digitalWrite(POWER_PIN, LOW);
+    delete serial;
+
+    delay(50);
+    gpio_hold_en((gpio_num_t)POWER_PIN);
+}
+
+void Controller::loadGear()
+{
+    gear = EEPROM.read(GEAR_ADDRESS);
+
+    int MAX_GEAR = this->legalMode ? 2 : 5;
+
+    if (gear > MAX_GEAR)
+        gear = MAX_GEAR;
+
+    if (gear < 0)
+        gear = 0;
 }
 
 void Controller::update()

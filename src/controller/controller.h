@@ -11,6 +11,7 @@ public:
 
     void setup();
     void shutdown();
+    void loadGear();
 
     void update();
 

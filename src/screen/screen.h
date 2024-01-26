@@ -14,6 +14,7 @@ namespace screen
     extern View view;
 
     void setup();
+    void lightUp();
     void shutdown();
 
     void draw();
