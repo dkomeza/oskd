@@ -1,0 +1,33 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build",
+      "type": "shell",
+      "command": "cd scripts && ./build.sh",
+      "group": {
+        "kind": "none",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "upload",
+      "type": "shell",
+      "command": "cd scripts && ./upload.sh",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "detail": "Uploads the firmware to the ESP32 board"
+    },
+    {
+      "label": "monitor",
+      "type": "shell",
+      "command": "cd scripts && ./monitor.sh",
+      "group": {
+        "kind": "none",
+        "isDefault": true
+      }
+    }
+  ]
+}

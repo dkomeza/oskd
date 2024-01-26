@@ -29,6 +29,8 @@ void setup()
 
     startup();
 
+    // screen::setup();
+
     controller.setup();
     connection::setupOTA();
     io.setup();
@@ -88,6 +90,6 @@ void startup()
     if (legalMode)
         return;
 
-    screen::draw();
+    screen::updateLegalMode();
     screen::loop(true);
 }

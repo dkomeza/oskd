@@ -15,4 +15,5 @@ namespace screen
     void loop(bool force = false);
 
     void setView(View view);
+    void updateLegalMode();
 }

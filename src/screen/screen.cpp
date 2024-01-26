@@ -62,3 +62,16 @@ void screen::setView(View view)
 
     currentView = view;
 }
+
+void screen::updateLegalMode()
+{
+    switch (currentView)
+    {
+    case View::Dashboard:
+        dashboard::updateLegalMode();
+        break;
+
+    default:
+        break;
+    }
+}

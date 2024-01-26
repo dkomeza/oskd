@@ -35,6 +35,11 @@ void dashboard::draw()
     drawMain();
 }
 
+void dashboard::updateLegalMode()
+{
+    drawMain();
+}
+
 void dashboard::update(bool force)
 {
     if (data::voltage != voltage || force)
@@ -135,12 +140,15 @@ void updateVoltage()
 
 void drawMain()
 {
+    spr.createSprite(220, 220);
+    spr.fillSprite(TFT_TRANSPARENT);
+
     // Draw the speed background
     int mainBackgroundRadius = 110;
     int mainBackgroundX = 120;
     int mainBackgroundY = 140;
 
-    tft.fillSmoothCircle(mainBackgroundX, mainBackgroundY, mainBackgroundRadius, TFT_BLACK, COLOR_BACKGROUND);
+    spr.fillSmoothCircle(mainBackgroundRadius, mainBackgroundRadius, mainBackgroundRadius, TFT_BLACK, COLOR_BACKGROUND);
 
     int wedgeX = 60;
     int wedgeX2 = wedgeX + 30;
@@ -148,18 +156,24 @@ void drawMain()
 
     uint16_t color = tft.color565(192, 0, 0);
 
-    tft.drawWedgeLine(60, wedgeY, 90, wedgeY, 0.1, 1.5, color, TFT_BLACK);
-    tft.drawWedgeLine(240 - wedgeX, wedgeY, 240 - wedgeX2, wedgeY, 0.1, 1.5, color, TFT_BLACK);
-    tft.drawWideLine(wedgeX2, wedgeY, 240 - wedgeX2, wedgeY, 3, color, color);
+    // spr.drawWedgeLine(60, wedgeY, 90, wedgeY, 0.1, 1.5, color, TFT_BLACK);
+    // spr.drawWedgeLine(240 - wedgeX, wedgeY, 240 - wedgeX2, wedgeY, 0.1, 1.5, color, TFT_BLACK);
+    // spr.drawWideLine(wedgeX2, wedgeY, 240 - wedgeX2, wedgeY, 3, color, color);
 
     // Draw the speed arc
     drawSpeedArc();
 
     // Draw the power arc
     drawPowerArc();
+
+    spr.pushSprite(120 - 110, 140 - 110, TFT_TRANSPARENT);
+    spr.deleteSprite();
 }
 void drawSpeedArc()
 {
+    int X = 110;
+    int Y = 110;
+
     int speedArcRadius = 100;
     int speedArcAngle = 220;
 
@@ -187,7 +201,7 @@ void drawSpeedArc()
         {
             int color = tft.color565(255 - i * 16, 0, 0); // From dark red to red
 
-            tft.drawSmoothArc(120, 140, speedArcRadius - i + 1, speedArcRadius - i, startAngle, speedArcEndAngle, color, previousColor);
+            spr.drawSmoothArc(X, Y, speedArcRadius - i + 1, speedArcRadius - i, startAngle, speedArcEndAngle, color, previousColor);
 
             previousColor = color;
         }
@@ -199,7 +213,7 @@ void drawSpeedArc()
         int startAngle = speedArcStartAngle + (double)speedArcAngle / (smallSpeedBars - 1) * i;
         int endAngle = startAngle + 1;
 
-        tft.drawSmoothArc(120, 140, speedArcRadius, speedArcRadius - smallSpeedBarHeight, startAngle, endAngle, TFT_WHITE, TFT_BLACK);
+        spr.drawSmoothArc(X, Y, speedArcRadius, speedArcRadius - smallSpeedBarHeight, startAngle, endAngle, TFT_WHITE, TFT_BLACK);
     }
 
     // Draw speed bars
@@ -208,32 +222,35 @@ void drawSpeedArc()
         int startAngle = speedArcStartAngle + (double)speedArcAngle / (speedBars - 1) * i;
         int endAngle = startAngle + 1;
 
-        tft.drawSmoothArc(120, 140, speedArcRadius, speedArcRadius - speedBarHeight, startAngle, endAngle, TFT_WHITE, TFT_BLACK);
+        spr.drawSmoothArc(X, Y, speedArcRadius, speedArcRadius - speedBarHeight, startAngle, endAngle, TFT_WHITE, TFT_BLACK);
     }
 
     // Draw the arc
-    tft.drawSmoothArc(120, 140, speedArcRadius, speedArcRadius - 1, speedArcStartAngle, speedArcEndAngle, TFT_WHITE, TFT_BLACK);
+    spr.drawSmoothArc(X, Y, speedArcRadius, speedArcRadius - 1, speedArcStartAngle, speedArcEndAngle, TFT_WHITE, TFT_BLACK);
 
     // Draw the speed text
-    tft.loadFont(FONT_S);
+    spr.loadFont(FONT_S);
     for (int i = 0; i < speedBars; i++)
     {
         int startAngle = 160 + (double)speedArcAngle / (speedBars - 1) * i + 1;
 
-        tft.setTextColor(TFT_WHITE, TFT_BLACK, true);
-        tft.setTextDatum(CC_DATUM);
+        spr.setTextColor(TFT_WHITE, TFT_BLACK, true);
+        spr.setTextDatum(CC_DATUM);
 
         int speed = divider * i;
 
-        int speedBarX = 120 + cos(startAngle * PI / 180.0) * (speedArcRadius - 18);
-        int speedBarY = 140 + sin(startAngle * PI / 180.0) * (speedArcRadius - 18);
+        int speedBarX = X + cos(startAngle * PI / 180.0) * (speedArcRadius - 18);
+        int speedBarY = Y + sin(startAngle * PI / 180.0) * (speedArcRadius - 18);
 
-        tft.drawString(String(speed), speedBarX, speedBarY, 1);
+        spr.drawString(String(speed), speedBarX, speedBarY, 1);
     }
-    tft.unloadFont();
+    spr.unloadFont();
 }
 void drawPowerArc()
 {
+    int X = 110;
+    int Y = 110;
+
     int powerArcRadius = 100;
     int powerArcAngle = 90;
 
@@ -258,7 +275,7 @@ void drawPowerArc()
 
         if (startAngle == 0 || startAngle == 360)
         {
-            tft.drawRect(120, 140 + powerArcRadius - smallPowerBarHeight, 2, smallPowerBarHeight, TFT_WHITE);
+            spr.drawRect(X, Y + powerArcRadius - smallPowerBarHeight, 2, smallPowerBarHeight, TFT_WHITE);
             continue;
         }
 
@@ -267,7 +284,7 @@ void drawPowerArc()
 
         int endAngle = startAngle + 1;
 
-        tft.drawSmoothArc(120, 140, powerArcRadius, powerArcRadius - smallPowerBarHeight, startAngle, endAngle, TFT_WHITE, TFT_BLACK);
+        spr.drawSmoothArc(X, Y, powerArcRadius, powerArcRadius - smallPowerBarHeight, startAngle, endAngle, TFT_WHITE, TFT_BLACK);
     }
 
     // Draw the power bars
@@ -282,31 +299,31 @@ void drawPowerArc()
 
         int endAngle = startAngle + 1;
 
-        tft.drawSmoothArc(120, 140, powerArcRadius, powerArcRadius - powerBarHeight, startAngle, endAngle, TFT_WHITE, TFT_BLACK);
+        spr.drawSmoothArc(X, Y, powerArcRadius, powerArcRadius - powerBarHeight, startAngle, endAngle, TFT_WHITE, TFT_BLACK);
     }
 
     // Draw the power arc
-    tft.drawSmoothArc(120, 140, powerArcRadius, powerArcRadius - 1, powerArcStartAngle, powerArcEndAngle, TFT_WHITE, TFT_BLACK);
+    spr.drawSmoothArc(X, Y, powerArcRadius, powerArcRadius - 1, powerArcStartAngle, powerArcEndAngle, TFT_WHITE, TFT_BLACK);
 
     // Draw the power text
-    tft.loadFont(FONT_S);
+    spr.loadFont(FONT_S);
     for (int i = 1; i < powerBars; i++)
     {
         int startAngle = 360 - powerArcAngle / (powerBars - 1) * i + powerArcAngle * 1.5;
 
-        tft.setTextColor(TFT_WHITE, TFT_BLACK, true);
-        tft.setTextDatum(CC_DATUM);
+        spr.setTextColor(TFT_WHITE, TFT_BLACK, true);
+        spr.setTextDatum(CC_DATUM);
 
         int power = (double)maxPower / (double)(powerBars - 1) * i / divider;
 
-        int powerBarX = 120 + cos(startAngle * PI / 180.0) * (powerArcRadius - 14);
-        int powerBarY = 140 + sin(startAngle * PI / 180.0) * (powerArcRadius - 14);
+        int powerBarX = X + cos(startAngle * PI / 180.0) * (powerArcRadius - 14);
+        int powerBarY = Y + sin(startAngle * PI / 180.0) * (powerArcRadius - 14);
 
-        tft.drawString(String(power), powerBarX, powerBarY, 1);
+        spr.drawString(String(power), powerBarX, powerBarY, 1);
     }
 
-    tft.drawString("x" + String(divider) + "W", 56, 200, 1);
-    tft.unloadFont();
+    spr.drawString("x" + String(divider) + "W", 51, 170, 1);
+    spr.unloadFont();
 }
 
 void updateSpeed()
