@@ -15,6 +15,7 @@ void screen::setup()
 
     delay(50);
 
+    gpio_hold_dis((gpio_num_t)BACKLIGHT_PIN);
     pinMode(BACKLIGHT_PIN, OUTPUT);
     digitalWrite(BACKLIGHT_PIN, HIGH);
 
@@ -27,6 +28,12 @@ void screen::setup()
     default:
         break;
     }
+}
+
+void screen::shutdown()
+{
+    gpio_hold_en((gpio_num_t)BACKLIGHT_PIN);
+    digitalWrite(BACKLIGHT_PIN, LOW);
 }
 
 void screen::draw()
@@ -61,17 +68,4 @@ void screen::setView(View view)
         return;
 
     screen::view = view;
-}
-
-void screen::updateLegalMode()
-{
-    switch (screen::view)
-    {
-    case View::Dashboard:
-        dashboard::updateLegalMode();
-        break;
-
-    default:
-        break;
-    }
 }

@@ -16,6 +16,8 @@ const int BUTTON_DOWN_PIN = 14;
 const int BUTTON_POWER_PIN = 27;
 const int BUTTON_UP_PIN = 12;
 
+const int EEPROM_SIZE = 32;
+
 Button pButton = Button(BUTTON_POWER_PIN);
 Button uButton = Button(BUTTON_UP_PIN);
 Button dButton = Button(BUTTON_DOWN_PIN);
@@ -29,6 +31,7 @@ void setup()
     esp_sleep_enable_ext0_wakeup((gpio_num_t)BUTTON_POWER_PIN, 0);
 
     Serial.begin(115200);
+    EEPROM.begin(EEPROM_SIZE);
 
     startup();
     setupButtons();
@@ -93,11 +96,6 @@ void startup()
     }
 
     controller.setLegalMode(legalMode);
-
-    if (legalMode)
-        return;
-
-    screen::updateLegalMode();
     screen::loop(true);
 }
 
@@ -120,4 +118,39 @@ void setupButtons()
                 controller.handleButtonDown();
                 break;
         } });
+
+    dButton.onLongPress([]()
+                        {
+        switch (screen::view)
+        {
+            case View::Dashboard:
+                controller.handleButtonDownLongPress();
+                break;
+        } });
+
+    dButton.onLongPressRelease([]()
+                               {
+        switch (screen::view)
+        {
+            case View::Dashboard:
+                controller.handleButtonDownLongPressStop();
+                break;
+        } });
+
+    uButton.onLongPress([]()
+                        {
+        switch (screen::view)
+        {
+            case View::Dashboard:
+                controller.handleButtonUpLongPress();
+                break;
+        } });
+
+    pButton.onLongPress([]()
+                        {
+        screen::shutdown();
+        controller.shutdown(); 
+        
+        delay(100);
+        esp_deep_sleep_start(); });
 }

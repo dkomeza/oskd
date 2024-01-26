@@ -1,5 +1,6 @@
 #include "controller.h"
 #include "data/data.h"
+#include "screen/screen.h"
 
 Controller controller;
 
@@ -8,6 +9,21 @@ void Controller::setup()
     serial = new HardwareSerial(2);
 
     serial->begin(CONTROLLER_BAUD_RATE, SERIAL_8N1, CONTROLLER_RX_PIN, CONTROLLER_TX_PIN);
+
+    gear = EEPROM.read(GEAR_ADDRESS);
+
+    if (gear > 5 || gear < 0)
+        gear = 0;
+
+    gpio_hold_dis((gpio_num_t)POWER_PIN);
+    pinMode(POWER_PIN, OUTPUT);
+    digitalWrite(POWER_PIN, HIGH);
+}
+
+void Controller::shutdown()
+{
+    gpio_hold_en((gpio_num_t)POWER_PIN);
+    digitalWrite(POWER_PIN, LOW);
 }
 
 void Controller::update()
@@ -28,11 +44,20 @@ void Controller::update()
 
 void Controller::setLegalMode(bool legalMode)
 {
+    if (this->legalMode == legalMode)
+        return;
+
     this->legalMode = legalMode;
 
     this->maxSpeed = legalMode ? 25 : 50;
     this->maxPower = legalMode ? 250 : this->_maxPower;
 
+    dashboard::updateLegalMode();
+
+    if (legalMode)
+        this->gear = this->gear > 2 ? 2 : this->gear;
+
+    dashboard::update(true);
     sendPacket();
 }
 
@@ -50,20 +75,45 @@ void Controller::handleButtonDown()
 {
     int MIN_GEAR = 0;
 
-    if (data::gear > MIN_GEAR)
-        data::gear--;
+    if (gear > MIN_GEAR)
+        gear--;
 
     sendPacket();
+
+    EEPROM.write(GEAR_ADDRESS, gear);
+    EEPROM.commit();
 }
 
 void Controller::handleButtonUp()
 {
     int MAX_GEAR = this->legalMode ? 2 : 5;
 
-    if (data::gear < MAX_GEAR)
-        data::gear++;
+    if (gear < MAX_GEAR)
+        gear++;
 
     sendPacket();
+    EEPROM.write(GEAR_ADDRESS, gear);
+    EEPROM.commit();
+}
+
+void Controller::handleButtonDownLongPress()
+{
+    this->_gear = gear;
+    gear = 6;
+
+    sendPacket();
+}
+
+void Controller::handleButtonDownLongPressStop()
+{
+    gear = this->_gear;
+
+    sendPacket();
+}
+
+void Controller::handleButtonUpLongPress()
+{
+    this->setLegalMode(true);
 }
 
 void Controller::sendPacket()

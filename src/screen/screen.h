@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Arduino.h>
+#include "views/dashboard.h"
 
 enum class View
 {
@@ -13,9 +14,10 @@ namespace screen
     extern View view;
 
     void setup();
+    void shutdown();
+
     void draw();
     void loop(bool force = false);
 
     void setView(View view);
-    void updateLegalMode();
 }
