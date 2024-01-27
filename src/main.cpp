@@ -127,6 +127,9 @@ void setupButtons()
             case View::Dashboard:
                 controller.handleButtonUp();
                 break;
+            case View::Settings:
+                settings.handleUpButton();
+                break;
         } });
 
     dButton.onClick([]()
@@ -135,6 +138,18 @@ void setupButtons()
         {
             case View::Dashboard:
                 controller.handleButtonDown();
+                break;
+            case View::Settings:
+                settings.handleDownButton();
+                break;
+        } });
+
+    pButton.onClick([]()
+                    {
+        switch (screen::view)
+        {
+            case View::Settings:
+                settings.handlePowerButton();
                 break;
         } });
 

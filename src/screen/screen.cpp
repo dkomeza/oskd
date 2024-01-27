@@ -35,13 +35,16 @@ void screen::setup()
 
 void screen::lightUp()
 {
-    int max_brightness = settings.brightness + 1;
+
+    int max_brightness = 155 + (settings.brightness * 10) + 1;
 
     for (int i = 0; i < max_brightness; i++)
     {
         analogWrite(BACKLIGHT_PIN, i);
         delay(5);
     }
+
+    analogWrite(BACKLIGHT_PIN, max_brightness);
 }
 
 void screen::shutdown()

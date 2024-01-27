@@ -5,51 +5,23 @@ Settings settings;
 
 Settings::Settings()
 {
-  this->createGeneralCategory();
-  this->createMotorCategory();
-  this->createPasCategory();
-  this->createBatteryCategory();
-  this->createThrottleCategory();
-  this->createDisplayCategory();
-}
-
-void Settings::createGeneralCategory()
-{
-  Category general("General");
-
+  Category general("General", true);
   this->categories.push_back(general);
-}
-void Settings::createMotorCategory()
-{
+
   Category motor("Motor");
-
   this->categories.push_back(motor);
-}
-void Settings::createPasCategory()
-{
+
   Category pas("PAS");
-
   this->categories.push_back(pas);
-}
-void Settings::createBatteryCategory()
-{
+
   Category battery("Battery");
-
   this->categories.push_back(battery);
-}
-void Settings::createThrottleCategory()
-{
+
   Category throttle("Throttle");
-
   this->categories.push_back(throttle);
-}
-void Settings::createDisplayCategory()
-{
+
   Category display("Display");
-
-  // Setting brightness("Brightness", "Adjust the brightness of the display", &this->brightness, 0, 255);
-
-  // display.addSetting(brightness);
+  Setting brightness("Brightness", "Brightness of the display", &this->brightness, 0, 5);
   this->categories.push_back(display);
 }
 
@@ -66,24 +38,13 @@ void Settings::draw()
 
   for (int i = 0; i < this->categories.size(); i++)
   {
-    Category category = this->categories[i];
+    Category *category = &this->categories[i];
 
-    spr.createSprite(drawerWidth, drawerHeight);
-    spr.fillSprite(TFT_BLACK);
-
-    spr.fillSmoothRoundRect(0, 0, drawerWidth, drawerHeight, 8, COLOR_BACKGROUND);
-
-    spr.loadFont(FONT_M);
-    spr.setTextColor(TFT_WHITE);
-    spr.setTextDatum(ML_DATUM);
-
-    spr.drawString(category.name, 8, 8);
-
-    spr.unloadFont();
-
+    int x = paddingX;
     int y = offsetY + i * (drawerHeight + paddingY);
-    spr.pushSprite(paddingX, y);
-    spr.deleteSprite();
+
+    category->setPosition(x, y, drawerWidth, drawerHeight);
+    category->drawHeader();
   }
 }
 
@@ -95,4 +56,53 @@ void Settings::setup()
 void Settings::update()
 {
   delay(10);
+}
+
+void Settings::handleUpButton()
+{
+  if (selectedCategory != -1)
+  {
+    Category category = this->categories[selectedCategory];
+    // category.handleUpButton();
+  }
+  else
+  {
+    if (hoveredCategory > 0)
+    {
+      this->categories[hoveredCategory].setHovered(false);
+      this->hoveredCategory--;
+      this->categories[hoveredCategory].setHovered(true);
+    }
+  }
+}
+
+void Settings::handleDownButton()
+{
+  if (selectedCategory != -1)
+  {
+    Category category = this->categories[selectedCategory];
+    // category.handleDownButton();
+  }
+  else
+  {
+    if (hoveredCategory < this->categories.size() - 1)
+    {
+      this->categories[hoveredCategory].setHovered(false);
+      this->hoveredCategory++;
+      this->categories[hoveredCategory].setHovered(true);
+    }
+  }
+}
+
+void Settings::handlePowerButton()
+{
+  if (selectedCategory != -1)
+  {
+    Category category = this->categories[selectedCategory];
+    // category.handlePowerButton();
+  }
+  else
+  {
+    this->selectedCategory = this->hoveredCategory;
+  }
 }
