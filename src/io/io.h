@@ -5,8 +5,6 @@
 class IO
 {
 public:
-  IO(){};
-
   void setup();
   void update();
 

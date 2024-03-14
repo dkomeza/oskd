@@ -1,7 +1,8 @@
 #include "screen.h"
 #include "views/dashboard.h"
-#include "tft.h"
+#include "views/settings.h"
 #include "settings/settings.h"
+#include "tft.h"
 
 View screen::view = View::Dashboard;
 
@@ -25,7 +26,7 @@ void screen::setup()
         break;
 
     case View::Settings:
-        settings.draw();
+        settingsView.draw();
         break;
 
     default:
@@ -36,7 +37,7 @@ void screen::setup()
 void screen::lightUp()
 {
 
-    int max_brightness = 155 + (settings.brightness * 10) + 1;
+    int max_brightness = 155 + (*settings.brightness * 10) + 1;
 
     for (int i = 0; i < max_brightness; i++)
     {
@@ -49,7 +50,9 @@ void screen::lightUp()
 
 void screen::shutdown()
 {
-    for (int i = 255; i >= 0; i--)
+    int max_brightness = 155 + (*settings.brightness * 10) + 1;
+
+    for (int i = max_brightness; i >= 0; i--)
     {
         analogWrite(BACKLIGHT_PIN, i);
         delay(2);
@@ -70,7 +73,7 @@ void screen::draw()
         break;
 
     case View::Settings:
-        settings.draw();
+        settingsView.draw();
         break;
 
     default:
@@ -84,10 +87,6 @@ void screen::loop(bool force)
     {
     case View::Dashboard:
         dashboard::update(force);
-        break;
-
-    case View::Settings:
-        settings.update();
         break;
 
     default:

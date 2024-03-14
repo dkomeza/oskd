@@ -7,6 +7,9 @@
 
 namespace connection
 {
+    long lastUpdate = 0;
+    int updateInterval = 200;
+
     IPAddress setup()
     {
         ArduinoOTA.setHostname("OSKD");
@@ -28,6 +31,15 @@ namespace connection
 
     void loop()
     {
+        long now = millis();
+
+        if (now < lastUpdate)
+            lastUpdate = now;
+
+        if (now - lastUpdate < updateInterval)
+            return;
+
         ArduinoOTA.handle();
+        lastUpdate = now;
     }
 }

@@ -1,108 +1,83 @@
 #include "settings.h"
 #include "screen/tft.h"
+#include <WiFi.h>
+#include <QRCodeGen.h>
+#include <EEPROM.h>
+
+static const int minValues[SETTINGS_ARRAY_SIZE] = {10, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0};
+static const int maxValues[SETTINGS_ARRAY_SIZE] = {72, 30, 255, 6, 1, 1, 40, 7, 1, 5, 100, 10, 7, 5, 3, 5, 15, 1};
+static const int defaultValues[SETTINGS_ARRAY_SIZE] = {25, 20, 86, 1, 1, 0, 13, 5, 0, 0, 50, 10, 4, 0, 2, 5, 5, 1};
 
 Settings settings;
 
 Settings::Settings()
 {
-  Category general("General", true);
-  this->categories.push_back(general);
-
-  Category motor("Motor");
-  this->categories.push_back(motor);
-
-  Category pas("PAS");
-  this->categories.push_back(pas);
-
-  Category battery("Battery");
-  this->categories.push_back(battery);
-
-  Category throttle("Throttle");
-  this->categories.push_back(throttle);
-
-  Category display("Display");
-  Setting brightness("Brightness", "Brightness of the display", &this->brightness, 0, 5);
-  this->categories.push_back(display);
-}
-
-void Settings::draw()
-{
-  tft.fillScreen(TFT_BLACK);
-
-  int offsetY = 8;
-  int paddingX = 8;
-  int paddingY = 8;
-
-  int drawerWidth = TFT_WIDTH - paddingX * 2;
-  int drawerHeight = 42;
-
-  for (int i = 0; i < this->categories.size(); i++)
-  {
-    Category *category = &this->categories[i];
-
-    int x = paddingX;
-    int y = offsetY + i * (drawerHeight + paddingY);
-
-    category->setPosition(x, y, drawerWidth, drawerHeight);
-    category->drawHeader();
-  }
 }
 
 void Settings::setup()
 {
-  delay(10);
+  loadSettings();
+}
+
+void Settings::loadSettings()
+{
+  for (int i = 0; i < SETTINGS_ARRAY_SIZE; i++)
+  {
+    settingsArray[i] = EEPROM.read(SETTINGS_ADDRESS + i);
+  }
+
+  if (!validateSettings())
+  {
+    loadDefaults();
+    saveSettings();
+  }
+}
+
+bool Settings::validateSettings()
+{
+  for (int i = 0; i < SETTINGS_ARRAY_SIZE; i++)
+  {
+    if (settingsArray[i] < minValues[i] || settingsArray[i] > maxValues[i])
+    {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+void Settings::loadDefaults()
+{
+  for (int i = 0; i < SETTINGS_ARRAY_SIZE; i++)
+  {
+    settingsArray[i] = defaultValues[i];
+  }
+}
+
+void Settings::saveSettings()
+{
+  for (int i = 0; i < SETTINGS_ARRAY_SIZE; i++)
+  {
+    EEPROM.write(SETTINGS_ADDRESS + i, settingsArray[i]);
+  }
+
+  EEPROM.commit();
+}
+
+void Settings::setSetting(int index, int value)
+{
+  if (value < minValues[index] || value > maxValues[index])
+  {
+    return;
+  }
+
+  settingsArray[index] = value;
+
+  EEPROM.write(SETTINGS_ADDRESS + index, value);
+  EEPROM.commit();
 }
 
 void Settings::update()
 {
   delay(10);
-}
-
-void Settings::handleUpButton()
-{
-  if (selectedCategory != -1)
-  {
-    Category category = this->categories[selectedCategory];
-    // category.handleUpButton();
-  }
-  else
-  {
-    if (hoveredCategory > 0)
-    {
-      this->categories[hoveredCategory].setHovered(false);
-      this->hoveredCategory--;
-      this->categories[hoveredCategory].setHovered(true);
-    }
-  }
-}
-
-void Settings::handleDownButton()
-{
-  if (selectedCategory != -1)
-  {
-    Category category = this->categories[selectedCategory];
-    // category.handleDownButton();
-  }
-  else
-  {
-    if (hoveredCategory < this->categories.size() - 1)
-    {
-      this->categories[hoveredCategory].setHovered(false);
-      this->hoveredCategory++;
-      this->categories[hoveredCategory].setHovered(true);
-    }
-  }
-}
-
-void Settings::handlePowerButton()
-{
-  if (selectedCategory != -1)
-  {
-    Category category = this->categories[selectedCategory];
-    // category.handlePowerButton();
-  }
-  else
-  {
-    this->selectedCategory = this->hoveredCategory;
-  }
 }
