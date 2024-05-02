@@ -6,6 +6,7 @@ typedef void (*callback)(void);
 
 enum class ButtonState
 {
+    Initial,
     Idle,
     Pressed,
 };
@@ -19,7 +20,7 @@ public:
 
     void onClick(callback cb);
     void onLongPress(callback cb);
-    void onLongPress(callback cb, unsigned int repeatTime);
+    void onLongPressRepeat(callback cb);
     void onLongPressRelease(callback cb);
 
     void update();
@@ -32,14 +33,15 @@ private:
 
     callback onClickCallback;
     callback onLongPressCallback;
+    callback onLongPressRepeatCallback;
     callback onLongPressReleaseCallback;
 
     unsigned int debounceTime = 50;
     unsigned int longPressTime = 1000;
     bool longPress = false;
-    bool longPressRepeat = false;
     unsigned int longPressRepeatTime = 1000;
 
     unsigned long lastChange;
     unsigned long lastRepeat;
+    unsigned long repeatCount;
 };

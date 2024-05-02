@@ -3,17 +3,13 @@
 #include <TFT_eSPI.h>
 
 #include "connection/OTA.h"
-
-#include "screen/screen.h"
-#include "screen/views/dashboard.h"
-
-#include "data/data.h"
-#include "settings/settings.h"
 #include "controller/controller.h"
-#include "settings/settings.h"
-
 #include "io/button.h"
 #include "io/io.h"
+#include "screen/screen.h"
+#include "screen/views/dashboard.h"
+#include "screen/views/settings.h"
+#include "settings/settings.h"
 
 const int BUTTON_DOWN_PIN = 14;
 const int BUTTON_POWER_PIN = 27;
@@ -25,151 +21,170 @@ Button pButton = Button(BUTTON_POWER_PIN);
 Button uButton = Button(BUTTON_UP_PIN);
 Button dButton = Button(BUTTON_DOWN_PIN);
 
-enum class BUTTON
-{
-    Power,
-    Up,
-    Down
+enum class View {
+  Dashboard,
+  Settings,
 };
+
+View view = View::Dashboard;
 
 void startup();
 void setupButtons();
 
-void setup()
-{
-    pinMode(BUTTON_POWER_PIN, INPUT_PULLUP);
-    esp_sleep_enable_ext0_wakeup((gpio_num_t)BUTTON_POWER_PIN, 0);
+void setup() {
+  pinMode(BUTTON_POWER_PIN, INPUT_PULLUP);
+  esp_sleep_enable_ext0_wakeup((gpio_num_t)BUTTON_POWER_PIN, 0);
 
-    EEPROM.begin(EEPROM_SIZE);
+  EEPROM.begin(EEPROM_SIZE);
 
-    controller.setup();
-    io.setup();
-    connection::setup();
-    screen::setup();
+  controller.setup();
+  io.setup();
+  connection::setup();
+  screen::setup();
 
-    startup();
-    setupButtons();
+  startup();
+  setupButtons();
 }
 
-void loop()
-{
-    controller.update(); // Controller
-    connection::loop();  // OTA
+void loop() {
+  if (view == View::Dashboard) {
+    dashboard.update();
+  }
+  io.update();
+  connection::loop();
+  controller.update();
 
-    uButton.update();
-    dButton.update();
-    pButton.update();
+  uButton.update();
+  dButton.update();
+  pButton.update();
 }
 
-void startup()
-{
-    bool legalMode = false;
-    long start = millis();
+void startup() {
+  bool legalMode = false;
+  long start = millis();
 
-    // startup routine
-    while (start + 1000 > millis())
-    {
-        if (!pButton.isPressed())
-            esp_deep_sleep_start();
+  // startup routine
+  while (start + 1000 > millis()) {
+    if (!pButton.isPressed())
+      esp_deep_sleep_start();
 
-        loop();
-        delay(10);
-    }
+    io.update();
+    delay(10);
+  }
 
-    // check for settings
-    if (pButton.isPressed() && dButton.isPressed())
-    {
-        return;
-    }
+  settings.setup();
+
+  // check for settings
+  if (pButton.isPressed() && dButton.isPressed()) {
+    view = View::Settings;
+
+    settingsView.draw();
 
     screen::lightUp();
 
-    start = millis();
+    controller.setLegalMode(false);
+    return;
+  }
 
-    // legal mode routine
-    while (start + 3000 > millis())
-    {
-        if (!pButton.isPressed() || !uButton.isPressed())
-        {
-            legalMode = true;
-            break;
-        }
+  dashboard.setup();
 
-        delay(10);
+  screen::lightUp();
+
+  start = millis();
+
+  // legal mode routine
+  while (start + 3000 > millis()) {
+    if (!pButton.isPressed() || !uButton.isPressed()) {
+      legalMode = true;
+      break;
     }
 
-    controller.setLegalMode(legalMode);
+    delay(10);
+  }
+
+  controller.setLegalMode(legalMode);
+
+  dashboard.update();
+
+  while (uButton.isPressed()) {
+    delay(10);
+  }
 }
 
-void shutdown()
-{
-    controller.shutdown();
+void shutdown() {
+  controller.shutdown();
+  screen::shutdown();
 
-    delay(100);
-    esp_deep_sleep_start();
+  delay(100);
+  esp_deep_sleep_start();
 }
 
-void setupButtons()
-{
-    uButton.onClick([]()
-                    { onClick(BUTTON::Up); });
-    dButton.onClick([]()
-                    { onClick(BUTTON::Down); });
-    pButton.onClick([]()
-                    { onClick(BUTTON::Power); });
+void onClick(BUTTON button) {
+  if (view == View::Settings) {
+    settingsView.handleClick(button);
+    return;
+  }
 
-    uButton.onLongPress([]()
-                        { onLongPress(BUTTON::Up); });
-    dButton.onLongPress([]()
-                        { onLongPress(BUTTON::Down); });
-    pButton.onLongPress([]()
-                        { onLongPress(BUTTON::Power); });
-
-    dButton.onLongPressRelease([]()
-                               { onLongPressRelease(BUTTON::Down); });
-}
-
-void onClick(BUTTON button)
-{
-    switch (button)
-    {
+  switch (button) {
     case BUTTON::Power:
-        break;
+      break;
     case BUTTON::Up:
-        controller.setGear(controller.gear + 1);
-        break;
+      controller.setGear(controller.gear + 1);
+      break;
     case BUTTON::Down:
-        controller.setGear(controller.gear - 1);
-        break;
-    }
+      controller.setGear(controller.gear - 1);
+      break;
+  }
 }
 
-void onLongPress(BUTTON button)
-{
-    switch (button)
-    {
+void onLongPress(BUTTON button) {
+  if (view == View::Settings) {
+    return;
+  }
+
+  switch (button) {
     case BUTTON::Power:
-        shutdown();
-        break;
+      shutdown();
+      break;
     case BUTTON::Up:
-        controller.setLegalMode(true);
-        break;
+      controller.setLegalMode(true);
+      break;
     case BUTTON::Down:
-        controller.setWalkMode(true);
-        break;
-    }
+      controller.setWalkMode(true);
+      break;
+  }
 }
 
-void onLongPressRelease(BUTTON button)
-{
-    switch (button)
-    {
+void onLongPressRepeat(BUTTON button) {
+  if (view == View::Dashboard)
+    return;
+
+  settingsView.handleClick(button);
+}
+
+void onLongPressRelease(BUTTON button) {
+  switch (button) {
     case BUTTON::Power:
-        break;
+      break;
     case BUTTON::Up:
-        break;
+      break;
     case BUTTON::Down:
-        controller.setWalkMode(false);
-        break;
-    }
+      controller.setWalkMode(false);
+      break;
+  }
+}
+
+void setupButtons() {
+  uButton.onClick([]() { onClick(BUTTON::Up); });
+  dButton.onClick([]() { onClick(BUTTON::Down); });
+  pButton.onClick([]() { onClick(BUTTON::Power); });
+
+  uButton.onLongPress([]() { onLongPress(BUTTON::Up); });
+  dButton.onLongPress([]() { onLongPress(BUTTON::Down); });
+  pButton.onLongPress([]() { onLongPress(BUTTON::Power); });
+
+  dButton.onLongPressRelease([]() { onLongPressRelease(BUTTON::Down); });
+
+  uButton.onLongPressRepeat([]() { onLongPressRepeat(BUTTON::Up); });
+  dButton.onLongPressRepeat([]() { onLongPressRepeat(BUTTON::Down); });
 }

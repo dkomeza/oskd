@@ -4,6 +4,34 @@
 #include <vector>
 
 static const int SETTINGS_ARRAY_SIZE = 18;
+static const int WHEEL_SIZE_COUNT = 15;
+
+struct wheelSize
+{
+    String name;
+    int value;
+};
+
+static const int minValues[SETTINGS_ARRAY_SIZE] = {10, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0};
+static const int maxValues[SETTINGS_ARRAY_SIZE] = {72, 30, 255, 6, 1, 1, 40, 7, 1, 5, 100, 10, 7, 5, 3, 10, 15, 1};
+static const int defaultValues[SETTINGS_ARRAY_SIZE] = {25, 20, 86, 1, 1, 0, 13, 5, 0, 0, 50, 10, 4, 0, 2, 5, 5, 1};
+
+static const wheelSize wheelSizes[WHEEL_SIZE_COUNT] = {
+    {"05 inch", 22},
+    {"06 inch", 18},
+    {"08 inch", 10},
+    {"10 inch", 14},
+    {"12 inch", 2},
+    {"14 inch", 6},
+    {"16 inch", 0},
+    {"18 inch", 4},
+    {"20 inch", 8},
+    {"23 inch", 12},
+    {"24 inch", 16},
+    {"26 inch", 20},
+    {"700C", 24},
+    {"28 inch", 28},
+    {"29 inch", 30}};
 
 #define SPEED_LIMIT_ADDRESS 0
 #define WHEEL_SIZE_ADDRESS 1
@@ -33,11 +61,13 @@ public:
     void update();
 
     void setSetting(int index, int value);
+    void setWheelSize(int direction);
 
     int settingsArray[SETTINGS_ARRAY_SIZE];
     int *speedLimit = &settingsArray[SPEED_LIMIT_ADDRESS];
 
     int *brightness = &settingsArray[DISPLAY_BRIGHTNESS_ADDRESS];
+    int *autoSleep = &settingsArray[DISPLAY_AUTO_SLEEP_ADDRESS];
     bool *displayTemperature = (bool *)&settingsArray[DISPLAY_TEMPERATURE_DISPLAY_ADDRESS];
 
 private:

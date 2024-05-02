@@ -8,6 +8,8 @@ public:
   void setup();
   void update();
 
+  int battery;
+
 private:
   static const int BATTERY_VOLTAGE_PIN = 35;
   static const int BATTERY_VOLTAGE_OFFSET_PIN = 34;

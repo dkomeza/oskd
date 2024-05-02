@@ -1,5 +1,5 @@
 #include "io.h"
-#include "data/data.h"
+#include "screen/views/dashboard.h"
 
 IO io;
 
@@ -23,7 +23,7 @@ void IO::update()
 
   lastUpdate = now;
 
-  data::voltage = getVoltage();
+  battery = getVoltage();
 }
 
 int IO::getVoltageOffset()
@@ -56,7 +56,7 @@ int IO::getVoltage()
 
   int voltage = map(sum, 0, 4095, 0, 3300);
 
-  int batteryVoltage = voltage * (1000 + 56) / 56; // 56kOhm and 1MOhm voltage divider
+  int batteryVoltage = voltage * (1000 + 33) / 33; // 33kOhm and 1MOhm voltage divider
 
   return batteryVoltage / 100; // 10x battery voltage
 }

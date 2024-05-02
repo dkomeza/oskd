@@ -4,9 +4,9 @@
 #include "settings/settings.h"
 #include "tft.h"
 
-View screen::view = View::Dashboard;
-
 static const int BACKLIGHT_PIN = 26;
+static const int minBrightness = 55;
+static const int brightnessStep = 20;
 
 void screen::setup()
 {
@@ -18,26 +18,12 @@ void screen::setup()
 
     gpio_hold_dis((gpio_num_t)BACKLIGHT_PIN);
     pinMode(BACKLIGHT_PIN, OUTPUT);
-
-    switch (screen::view)
-    {
-    case View::Dashboard:
-        dashboard::draw();
-        break;
-
-    case View::Settings:
-        settingsView.draw();
-        break;
-
-    default:
-        break;
-    }
 }
 
 void screen::lightUp()
 {
 
-    int max_brightness = 155 + (*settings.brightness * 10) + 1;
+    int max_brightness = minBrightness + (*settings.brightness * brightnessStep) + 1;
 
     for (int i = 0; i < max_brightness; i++)
     {
@@ -50,7 +36,7 @@ void screen::lightUp()
 
 void screen::shutdown()
 {
-    int max_brightness = 155 + (*settings.brightness * 10) + 1;
+    int max_brightness = minBrightness + (*settings.brightness * brightnessStep);
 
     for (int i = max_brightness; i >= 0; i--)
     {
@@ -64,40 +50,16 @@ void screen::shutdown()
     gpio_hold_en((gpio_num_t)BACKLIGHT_PIN);
 }
 
-void screen::draw()
+void screen::changeBrightness(int oldValue, int newValue)
 {
-    switch (screen::view)
+    int old_brightness = minBrightness + (oldValue * brightnessStep);
+    int new_brightness = minBrightness + (newValue * brightnessStep);
+
+    int step = new_brightness > old_brightness ? 1 : -1;
+
+    for (int i = old_brightness; i != new_brightness; i += step)
     {
-    case View::Dashboard:
-        dashboard::draw();
-        break;
-
-    case View::Settings:
-        settingsView.draw();
-        break;
-
-    default:
-        break;
+        analogWrite(BACKLIGHT_PIN, i);
+        delay(2);
     }
-}
-
-void screen::loop(bool force)
-{
-    switch (screen::view)
-    {
-    case View::Dashboard:
-        dashboard::update(force);
-        break;
-
-    default:
-        break;
-    }
-}
-
-void screen::setView(View view)
-{
-    if (screen::view == view)
-        return;
-
-    screen::view = view;
 }

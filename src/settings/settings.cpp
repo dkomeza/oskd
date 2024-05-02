@@ -1,12 +1,9 @@
 #include "settings.h"
 #include "screen/tft.h"
+#include "screen/screen.h"
 #include <WiFi.h>
 #include <QRCodeGen.h>
 #include <EEPROM.h>
-
-static const int minValues[SETTINGS_ARRAY_SIZE] = {10, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0};
-static const int maxValues[SETTINGS_ARRAY_SIZE] = {72, 30, 255, 6, 1, 1, 40, 7, 1, 5, 100, 10, 7, 5, 3, 5, 15, 1};
-static const int defaultValues[SETTINGS_ARRAY_SIZE] = {25, 20, 86, 1, 1, 0, 13, 5, 0, 0, 50, 10, 4, 0, 2, 5, 5, 1};
 
 Settings settings;
 
@@ -71,9 +68,55 @@ void Settings::setSetting(int index, int value)
     return;
   }
 
+  int oldValue = settingsArray[index];
+
   settingsArray[index] = value;
 
   EEPROM.write(SETTINGS_ADDRESS + index, value);
+  EEPROM.commit();
+
+  if (index == DISPLAY_BRIGHTNESS_ADDRESS)
+  {
+    screen::changeBrightness(oldValue, value);
+  }
+}
+
+void Settings::setWheelSize(int direction)
+{
+  int current = -1;
+
+  for (int i = 0; i < WHEEL_SIZE_COUNT; i++)
+  {
+    if (settingsArray[WHEEL_SIZE_ADDRESS] == wheelSizes[i].value)
+    {
+      current = i;
+      break;
+    }
+  }
+
+  if (current == -1)
+  {
+    settingsArray[WHEEL_SIZE_ADDRESS] = wheelSizes[0].value;
+    EEPROM.write(SETTINGS_ADDRESS + WHEEL_SIZE_ADDRESS, wheelSizes[0].value);
+    EEPROM.commit();
+    return;
+  }
+
+  current += direction;
+
+  if (current < 0)
+  {
+    current = 0;
+  }
+  else if (current >= WHEEL_SIZE_COUNT)
+  {
+    current = WHEEL_SIZE_COUNT - 1;
+  }
+
+  int value = wheelSizes[current].value;
+
+  settingsArray[WHEEL_SIZE_ADDRESS] = value;
+  EEPROM.write(SETTINGS_ADDRESS + WHEEL_SIZE_ADDRESS, value);
   EEPROM.commit();
 }
 

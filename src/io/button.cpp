@@ -28,11 +28,9 @@ void Button::onLongPress(callback cb)
     this->onLongPressCallback = cb;
 }
 
-void Button::onLongPress(callback cb, unsigned int repeatTime)
+void Button::onLongPressRepeat(callback cb)
 {
-    this->onLongPressCallback = cb;
-    this->longPressRepeat = true;
-    this->longPressRepeatTime = repeatTime;
+    this->onLongPressRepeatCallback = cb;
 }
 
 void Button::onLongPressRelease(callback cb)
@@ -54,6 +52,7 @@ void Button::update()
     {
         this->state = ButtonState::Pressed;
         this->lastChange = now;
+        this->longPressRepeatTime = 100;
     }
     else if (state == ButtonState::Pressed && !pressed)
     {
@@ -73,23 +72,31 @@ void Button::update()
     }
     else if (state == ButtonState::Pressed && pressed && diff > this->longPressTime)
     {
-        if (longPressRepeat)
+        if (this->onLongPressRepeatCallback != nullptr)
         {
             if (now - this->lastRepeat > this->longPressRepeatTime)
             {
-                if (this->onLongPressCallback != nullptr)
-                    this->onLongPressCallback();
+                this->onLongPressRepeatCallback();
                 this->lastRepeat = now;
+
+                if (this->repeatCount >= 5 && this->longPressRepeatTime > 50)
+                {
+                    this->longPressRepeatTime -= 0.1 * this->longPressRepeatTime;
+
+                    if (this->longPressRepeatTime < 50)
+                    {
+                        this->longPressRepeatTime = 50;
+                    }
+                }
             }
         }
-        else
+        if (this->onLongPressCallback != nullptr)
         {
-            if (longPress)
-                return;
-
-            longPress = true;
-            if (this->onLongPressCallback != nullptr)
+            if (!longPress)
+            {
+                longPress = true;
                 this->onLongPressCallback();
+            }
         }
     }
 }
