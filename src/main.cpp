@@ -27,6 +27,7 @@ enum class View {
 };
 
 View view = View::Dashboard;
+long lastActive = 0;
 
 void startup();
 void setupButtons();
@@ -44,15 +45,23 @@ void setup() {
 
   startup();
   setupButtons();
+
+  lastActive = millis();
 }
 
 void loop() {
-  if (view == View::Dashboard) {
-    dashboard.update();
-  }
   io.update();
   connection::loop();
   controller.update();
+  if (view == View::Dashboard) {
+    dashboard.update();
+
+    // Convert minutes to milliseconds
+    int shutdownTime = (*settings.autoSleep) * 60000;
+
+    if (shutdownTime > 0 && lastActive + shutdownTime < millis())
+      shutdown();
+  }
 
   uButton.update();
   dButton.update();

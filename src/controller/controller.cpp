@@ -44,6 +44,9 @@ void Controller::setup() {
 
   // Load the gear from the EEPROM
   loadGear();
+
+  // Set last active to now
+  lastActive = millis();
 }
 
 /**
@@ -237,6 +240,9 @@ void Controller::parsePacket(byte *packet)  // TODO: Implement this function
 
   if (speed < 2)
     speed = 0;
+
+  if (speed > 0)
+    lastActive = millis();
 
   power = packet[8] * 13;
   temperature = int8_t(packet[9]) + 15;
